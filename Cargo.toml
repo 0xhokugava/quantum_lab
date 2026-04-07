@@ -1,0 +1,8 @@
+[package]
+name = "quantum_lab"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ndarray = "0.17.2"
+rand = "0.10.0"
