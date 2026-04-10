@@ -1,10 +1,11 @@
-use ndarray::Array1;
+use ndarray::{Array, Dimension};
 
-/// Converts a state vector into the Dirac (Bra-ket) notation string.
+/// Formats a quantum state (represented as a vector or dynamic array) into Dirac notation.
 /// Filters out near-zero amplitudes and represents indices in binary format.
 ///
 /// Developed by Paul Dirac in 1939 to simplify quantum state representation.
-pub fn to_dirac(state: &Array1<f64>) -> String {
+pub fn to_dirac<D: Dimension>(state: &Array<f64, D>) -> String {
+    let state = state.view().into_dyn();
     // Determine the number of qubits based on the vector length (2^n)
     let n_qubits = (state.len() as f64).log2() as usize;
 
@@ -16,7 +17,7 @@ pub fn to_dirac(state: &Array1<f64>) -> String {
             let sign = if val > 0.0 { "+" } else { "-" };
             // Format index 'i' as a binary string of length 'n_qubits'
             format!(
-                " {}{:.3}|{:0width$b}>",
+                "{}{:.3}|{:0width$b}>",
                 sign,
                 val.abs(),
                 i,
