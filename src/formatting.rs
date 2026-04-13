@@ -27,3 +27,8 @@ pub fn to_dirac<D: Dimension>(state: &Array<f64, D>) -> String {
         .collect::<Vec<String>>()
         .join("")
 }
+
+/// Converts a state index into a human-readable binary string (Dirac notation).
+pub fn decode_measurement(index: usize, n_qubits: usize) -> String {
+    format!("{:0width$b}", index, width = n_qubits)
+}

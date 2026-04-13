@@ -19,14 +19,19 @@ fn test_measure_deterministic() {
 #[test]
 fn test_measure_statistics() {
     let h_state = array![FRAC_1_SQRT_2, FRAC_1_SQRT_2];
-    let shots = 1000;
-    let (p1, p0) = test_measure(&h_state, shots);
+    let shots = 10_000;
+
+    let results = test_measure(&h_state, shots);
+
+    let p0 = *results.get(&0).unwrap_or(&0.0);
+    let p1 = *results.get(&1).unwrap_or(&0.0);
 
     // For Hadamard expectations roughly 50/50
     // Check if it's within ±10% to avoid rare random fails
-    assert!(p1 > 40.0 && p1 < 60.0);
-    assert!(p0 > 40.0 && p0 < 60.0);
+    assert!(p1 > 40.0 && p1 < 60.0, "p1 was {}", p1);
+    assert!(p0 > 40.0 && p0 < 60.0, "p0 was {}", p0);
 
     // Sum must be exactly 100% or very close
-    assert!((p1 + p0 - 100.0).abs() < 1e-9);
+    let total_sum: f64 = results.values().sum();
+    assert!((total_sum - 100.0).abs() < 1e-9);
 }

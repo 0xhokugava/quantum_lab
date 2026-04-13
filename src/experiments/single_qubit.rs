@@ -11,6 +11,10 @@ pub fn single_qubit() {
     println!("   H|0> = {} (Superposition)", to_dirac(&state_h));
     let state_xh = gate_h().dot(&state_x); // H(X|0>) = |->
     println!("   H(X|0>) = {} (Phase state |- >)", to_dirac(&state_xh));
-    let (p1, p0) = test_measure(&state_xh, 100_000);
+
+    let stats = test_measure(&state_xh, 100_000);
+    let p0 = stats.get(&0).unwrap_or(&0.0);
+    let p1 = stats.get(&1).unwrap_or(&0.0);
+
     println!("   Measurement Stats: |1> {:.2}% vs |0> {:.2}%\n", p1, p0);
 }
