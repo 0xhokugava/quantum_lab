@@ -1,34 +1,39 @@
 use ndarray::Array1;
 use rand::*;
+use std::collections::HashMap;
 
-/// Performs a quantum measurement on a single qubit state vector.
-/// Collapses the superposition into a basis state |0> or |1> based on Born's rule.
-/// TODO NOTE: The current implementation is optimized for single-qubit measurement.
-pub fn measure(arr: &Array1<f64>) -> i32 {
-    let mut probabilities: Array1<f64> = Array1::zeros(arr.len());
-    for i in 0..arr.len() {
-        // Probability is the square of the amplitude (Born's rule)
-        probabilities[i] = arr[i].powi(2);
-    }
+/// Performs a quantum measurement on a state vector of any size.
+/// Collapses the superposition into a basis state based on Born's rule (|ψ|²).
+/// Uses cumulative probability to select an outcome from the full distribution.
+pub fn measure(arr: &Array1<f64>) -> usize {
     let mut rng = rng();
     let dice = rng.random_range(0.0..=1.0);
-    if dice < probabilities[0] { 0 } else { 1 }
+
+    let mut cumulative_probability = 0.0;
+
+    for (index, amplitude) in arr.iter().enumerate() {
+        cumulative_probability += amplitude.powi(2);
+        if dice < cumulative_probability {
+            return index;
+        }
+    }
+
+    arr.len() - 1
 }
 
 /// Runs multiple measurement simulations (shots) to gather statistics.
-/// Returns a tuple containing the percentage of outcomes for |1> and |0>
-pub fn test_measure(state: &Array1<f64>, shots: usize) -> (f64, f64) {
-    let mut one_count: usize = 0;
+/// Returns a HashMap containing the probability distribution across all detected states.
+pub fn test_measure(state: &Array1<f64>, shots: usize) -> HashMap<usize, f64> {
+    let mut counts = HashMap::new();
 
     for _ in 0..shots {
-        if measure(state) == 1 {
-            one_count += 1;
-        }
+        let res = measure(state);
+        *counts.entry(res).or_insert(0.0) += 1.0;
     }
-    let zero_count: usize = shots - one_count;
-    // Calculate statistical distribution in percentages
-    let p_one = (one_count as f64 / shots as f64) * 100.0;
-    let p_zero = (zero_count as f64 / shots as f64) * 100.0;
 
-    (p_one, p_zero)
+    for count in counts.values_mut() {
+        *count = (*count / shots as f64) * 100.0;
+    }
+
+    counts
 }

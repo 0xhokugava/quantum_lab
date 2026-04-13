@@ -1,5 +1,5 @@
 use crate::constants::{gate_cnot, gate_h, identity, q0};
-use crate::formatting::to_dirac;
+use crate::formatting::{decode_measurement, to_dirac};
 use crate::measurement::test_measure;
 use crate::ops::tensor_product;
 
@@ -20,13 +20,24 @@ pub fn entanglement() {
     let bell_state = gate_cnot().dot(&bell_superposition);
     println!("   Final Bell State: {}", to_dirac(&bell_state));
 
-    println!("\n--- Statistical Verification (IMPORTANT NOTE) ---");
-    println!("⚠️   CAUTION: The current measurement system is optimized for single qubits.");
-    println!("    In a 2-qubit system, it treats state |00> as '0' and |11> as '1'.");
-    println!("    The statistics below appear correct only because the Bell State lacks");
-    println!("    intermediate states (|01> and |10>). Multi-qubit decoding will be");
-    println!("    addressed in the next research session.\n");
+    let stats = test_measure(&bell_state, 100_000);
+    let n_qubits = (bell_state.len() as f64).log2() as usize;
 
-    let (p1, p0) = test_measure(&bell_state, 100_000);
-    println!("    Measurement Stats: |1> {:.2}% vs |0> {:.2}%\n", p1, p0);
+    let mut sorted_indices: Vec<_> = stats.keys().collect();
+    sorted_indices.sort();
+
+    for index in sorted_indices {
+        let percentage = stats.get(&index).unwrap_or(&0.0);
+        let bit_string = decode_measurement(*index, n_qubits);
+        println!("    |{}>: {:.2}%", bit_string, percentage);
+    }
+
+    println!("\n   Analysis:");
+    if stats.len() == 2 && stats.contains_key(&0) && stats.contains_key(&(bell_state.len() - 1)) {
+        println!("   Perfect correlation detected: states |00> and |11> share the probability.");
+        println!("   This confirms the non-local nature of the Bell State.");
+    } else if stats.len() > 2 {
+        println!("   State is in a multi-state superposition.");
+    }
 }
+
