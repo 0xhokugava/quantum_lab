@@ -39,8 +39,9 @@ cargo test
 - [x] Controlled-NOT (CNOT) logic
 - [x] Quantum Entanglement (Bell State)
 - [x] Multi-qubit measurement decoding and statistical analysis
+- [x] Complex number support
 
 ## Next Steps
-- Complex number support: Refactor the state vector and gates to use `num-complex` for full quantum phase simulation.
+- Implement full Pauli and phase gates set: Z, S, T and Y.
 - Quantum Circuit API: Implement a higher-level abstraction to build circuits without manual matrix multiplication.
 - Standard Algorithms: Implement Deutsch-Jozsa and Grover's search as verification experiments.
