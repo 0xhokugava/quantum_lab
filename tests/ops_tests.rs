@@ -1,33 +1,41 @@
-use ndarray::{Array1, array};
+use ndarray::Array1;
+use num_complex::Complex64;
 use quantum_lab::constants::{q0, q1};
 use quantum_lab::ops::tensor_product;
 
+fn to_c64(re: f64) -> Complex64 {
+    Complex64::new(re, 0.0)
+}
+
 #[test]
 fn test_tensor_product() {
+    let c_array = |re_vals: Vec<f64>| -> Array1<Complex64> {
+        Array1::from_vec(re_vals.into_iter().map(|re| to_c64(re)).collect())
+    };
     // Test |0> ⊗ |0> = |00> (index 0 is 1.0)
     let res00 = tensor_product(&q0(), &q0())
         .into_dimensionality::<ndarray::Ix1>()
         .expect("Should be a 1D vector");
 
-    assert_eq!(res00, array![1.0, 0.0, 0.0, 0.0]);
+    assert_eq!(res00, c_array(vec![1.0, 0.0, 0.0, 0.0]));
 
     // Test |0> ⊗ |1> = |01> (index 1 is 1.0)
     let res01 = tensor_product(&q0(), &q1())
         .into_dimensionality::<ndarray::Ix1>()
         .expect("Should be a 1D vector");
-    assert_eq!(res01, array![0.0, 1.0, 0.0, 0.0]);
+    assert_eq!(res01, c_array(vec![0.0, 1.0, 0.0, 0.0]));
 
     // Test |1> ⊗ |0> = |10> (index 2 is 1.0)
     let res10 = tensor_product(&q1(), &q0())
         .into_dimensionality::<ndarray::Ix1>()
         .expect("Should be a 1D vector");
-    assert_eq!(res10, array![0.0, 0.0, 1.0, 0.0]);
+    assert_eq!(res10, c_array(vec![0.0, 0.0, 1.0, 0.0]));
 
     // Test |1> ⊗ |1> = |11> (index 3 is 1.0)
     let res11 = tensor_product(&q1(), &q1())
         .into_dimensionality::<ndarray::Ix1>()
         .expect("Should be a 1D vector");
-    assert_eq!(res11, array![0.0, 0.0, 0.0, 1.0]);
+    assert_eq!(res11, c_array(vec![0.0, 0.0, 0.0, 1.0]));
 }
 
 #[test]
@@ -54,8 +62,8 @@ fn test_tensor_product_three_qubits() {
     let res_3q = tensor_product(&res_2q, &q0())
         .into_dimensionality::<ndarray::Ix1>()
         .expect("Three-qubit state must be a 1D vector");
-    let mut expected = Array1::zeros(8);
-    expected[4] = 1.0;
+    let mut expected = Array1::<Complex64>::zeros(8);
+    expected[4] = to_c64(1.0);
 
     assert_eq!(res_3q, expected);
     assert_eq!(res_3q.len(), 8);
