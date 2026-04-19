@@ -1,8 +1,8 @@
 use crate::constants::{gate_cnot, q0, q1};
-use crate::formatting::to_dirac;
+use crate::utils::to_dirac;
 use crate::ops::tensor_product;
 
-pub fn cnot_verification() {
+pub fn run() {
     println!("\n3. CNOT Gate Logic:");
     let state_10 = tensor_product(&q1(), &q0())
         .into_dimensionality::<ndarray::Ix1>()

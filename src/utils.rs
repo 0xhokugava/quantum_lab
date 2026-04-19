@@ -1,4 +1,4 @@
-use ndarray::{Array, Dimension};
+use ndarray::{Array, Array1, Dimension};
 use num_complex::Complex64;
 
 /// Formats a quantum state (represented as a vector or dynamic array) into Dirac notation.
@@ -30,4 +30,22 @@ pub fn to_dirac<D: Dimension>(state: &Array<Complex64, D>) -> String {
 /// Converts a state index into a human-readable binary string (Dirac notation).
 pub fn decode_measurement(index: usize, n_qubits: usize) -> String {
     format!("{:0width$b}", index, width = n_qubits)
+}
+
+/// Compares two quantum state vectors element-wise using an epsilon tolerance.
+///
+/// Returns true if the difference between corresponding amplitudes
+/// is smaller than the specified threshold (`eps`) for all elements.
+///
+/// This is necessary due to floating-point precision errors in numerical computations.
+///
+/// Note:
+/// - This comparison does NOT account for global phase differences.
+/// - this function will consider two states that differ only by a global phase (e.g., ψ and -ψ) different.
+/// - Suitable for simple validation, but not for full physical equivalence checks.
+pub fn approx_eq(a: &Array1<Complex64>, b: &Array1<Complex64>, eps: f64) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    a.iter().zip(b.iter()).all(|(x, y)| (x - y).norm() < eps)
 }

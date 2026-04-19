@@ -1,5 +1,5 @@
 pub mod measurement;
-pub mod formatting;
+pub mod utils;
 pub mod ops;
 pub mod constants;
 pub mod experiments;

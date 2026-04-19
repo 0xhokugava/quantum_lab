@@ -54,3 +54,16 @@ pub fn gate_cnot() -> Array2<Complex64> {
 pub fn identity() -> Array2<Complex64> {
     array![[1.0.into(), 0.0.into()], [0.0.into(), 1.0.into()]]
 }
+
+/// Pauli-Z gate (phase flip).
+///
+/// Applies a phase shift of π to the |1⟩ state while leaving |0⟩ unchanged:
+/// |0⟩ → |0⟩
+/// |1⟩ → -|1⟩
+///
+/// This gate does NOT change measurement probabilities
+/// but modifies the relative phase of the quantum state,
+/// which affects interference in later operations.
+pub fn gate_z() -> Array2<Complex64> {
+    array![[1.0.into(), 0.0.into()], [0.0.into(), (-1.0).into()]]
+}
