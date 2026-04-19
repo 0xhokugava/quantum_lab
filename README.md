@@ -20,6 +20,10 @@ To run the verification test suite:
 ```bash
 cargo test
 ```
+To run performance benchmarks:
+```bash
+cargo bench
+```
 
 ## 📁 Project Structure
 - `src/main.rs`: Entry point for the quantum simulator.
@@ -30,6 +34,9 @@ cargo test
 - `src/measurement.rs`: Simulation of the wave function collapse.
 - `src/experiments`: Modular research sessions (Single qubit, Entanglement).
 - `tests/`: Integration tests.
+
+## Performance & Limitations
+- The benchmark results show exponential growth in execution time as the number of qubits increases, with ~16× slowdown for every additional 2 qubits. Performance remains stable across runs, confirming correctness. However, the dense matrix-vector approach does not scale and becomes impractical beyond ~16 qubits due to computational and memory constraints.
 
 
 ## Current Progress
