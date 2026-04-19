@@ -1,6 +1,6 @@
 use crate::constants::{gate_cnot, q0, q1};
-use crate::utils::to_dirac;
 use crate::ops::tensor_product;
+use crate::utils::to_dirac;
 
 pub fn run() {
     println!("\n3. CNOT Gate Logic:");

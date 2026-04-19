@@ -4,7 +4,10 @@ use num_complex::Complex64;
 /// Computes the universal Kronecker product (tensor product) of two arrays.
 /// Works for state vectors (1D), gates/matrices (2D), and higher-dimensional arrays.
 /// The resulting array's shape is the element-wise product of the input shapes.
-pub fn tensor_product<D1, D2>(v1: &Array<Complex64, D1>, v2: &Array<Complex64, D2>) -> ArrayD<Complex64>
+pub fn tensor_product<D1, D2>(
+    v1: &Array<Complex64, D1>,
+    v2: &Array<Complex64, D2>,
+) -> ArrayD<Complex64>
 where
     D1: Dimension,
     D2: Dimension,

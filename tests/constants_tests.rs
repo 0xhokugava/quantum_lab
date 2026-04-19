@@ -1,6 +1,6 @@
 use ndarray::array;
 use num_complex::Complex64;
-use quantum_lab::constants::{gate_cnot, gate_h, gate_x, identity, q0, q1};
+use quantum_lab::constants::{gate_cnot, gate_h, gate_x, gate_z, identity, q0, q1};
 
 fn to_c64(re: f64) -> Complex64 {
     Complex64::new(re, 0.0)
@@ -52,4 +52,27 @@ fn test_cnot_logic() {
 #[test]
 fn test_identity_logic() {
     assert_eq!(identity().dot(&q0()), q0());
+}
+
+#[test]
+fn test_gate_z_logic() {
+    let input = array![to_c64(0.0), to_c64(1.0)];
+    let output = gate_z().dot(&input);
+    let expected = array![to_c64(0.0), to_c64(-1.0)];
+    for (a, b) in output.iter().zip(expected.iter()) {
+        assert!((*a - *b).norm() < 1e-10);
+    }
+}
+
+#[test]
+fn test_gate_z_preserves_probabilities() {
+    let state = gate_h().dot(&q0());
+    let state_z = gate_z().dot(&state);
+
+    let probs_before: Vec<f64> = state.iter().map(|x| x.norm_sqr()).collect();
+    let probs_after: Vec<f64> = state_z.iter().map(|x| x.norm_sqr()).collect();
+
+    for (a, b) in probs_before.iter().zip(probs_after.iter()) {
+        assert!((a - b).abs() < 1e-10);
+    }
 }

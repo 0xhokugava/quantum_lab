@@ -26,7 +26,6 @@ pub fn gate_h() -> Array2<Complex64> {
     array![[1.0.into(), 1.0.into()], [1.0.into(), (-1.0).into()]] * scale
 }
 
-
 /// Pauli-X gate (Quantum NOT).
 /// Flips the qubit state: |0⟩ ↔ |1⟩.
 pub fn gate_x() -> Array2<Complex64> {
