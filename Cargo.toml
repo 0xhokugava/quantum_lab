@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+criterion = "0.8.2"
 ndarray = "0.17.2"
 num-complex = "0.4.6"
 rand = "0.10.0"
+
+[[bench]]
+name = "sim_bench"
+harness = false
