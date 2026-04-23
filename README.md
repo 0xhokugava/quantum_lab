@@ -26,18 +26,18 @@ cargo bench
 ```
 
 ## 📁 Project Structure
-- `src/main.rs`: Entry point for the quantum simulator.
+- `benches/`: Performance benchmarks.
+- `src/experiments`: Modular research sessions (Single qubit, Entanglement etc.).
 - `src/lib.rs`: Quantum simulator library.
+- `src/main.rs`: Entry point for the quantum simulator.
 - `src/constants.rs`: Quantum gates and basis states definitions.
-- `src/ops.rs`: Mathematical operations.
-- `src/formatting.rs`: Visualization tools for quantum states.
 - `src/measurement.rs`: Simulation of the wave function collapse.
-- `src/experiments`: Modular research sessions (Single qubit, Entanglement).
+- `src/ops.rs`: Mathematical operations.
+- `src/utils.rs`: Visualization tools for quantum states.
 - `tests/`: Integration tests.
 
 ## Performance & Limitations
-- The benchmark results show exponential growth in execution time as the number of qubits increases, with ~16× slowdown for every additional 2 qubits. Performance remains stable across runs, confirming correctness. However, the dense matrix-vector approach does not scale and becomes impractical beyond ~16 qubits due to computational and memory constraints.
-
+- Benchmarks were conducted up to 12 qubits. However, given the O(2^(2n)) scaling, the dense matrix-vector approach is expected to become impractical beyond ~16 qubits due to computational and memory constraints.
 
 ## Current Progress
 - [x] Universal Tensor Product (Generics)
@@ -49,9 +49,9 @@ cargo bench
 - [x] Complex number support
 - [x] Implemented Pauli and phase gates
 - [x] In-place Gate Application (Matrix-free logic)
+- [x] Performance benchmarking for time scaling and speedup vs matrix-based approach
 
 ## Next Steps
-- Performance benchmarking using criterion to analyze scaling and memory efficiency vs matrix-based methods.
 - Implement optimized controlled gates (CNOT, CZ) without constructing global matrices.
 - Quantum Circuit API: Implement a higher-level abstraction to build circuits without manual matrix multiplication.
 - Standard Algorithms: Implement Deutsch-Jozsa and Grover's search as verification experiments.
