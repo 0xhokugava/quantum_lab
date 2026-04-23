@@ -1,4 +1,4 @@
-use ndarray::{Array, Array1, Dimension};
+use ndarray::{Array, Array1, ArrayD, Dimension};
 use num_complex::Complex64;
 
 /// Formats a quantum state (represented as a vector or dynamic array) into Dirac notation.
@@ -48,4 +48,13 @@ pub fn approx_eq(a: &Array1<Complex64>, b: &Array1<Complex64>, eps: f64) -> bool
         return false;
     }
     a.iter().zip(b.iter()).all(|(x, y)| (x - y).norm() < eps)
+}
+
+/// Creates an initial state vector |0...0> for N qubits.
+/// The vector has 2^n elements, with the first element set to 1.
+pub fn q0_n(n: usize) -> ArrayD<Complex64> {
+    let size = 1 << n;
+    let mut state = Array1::zeros(size);
+    state[0] = Complex64::new(1.0, 0.0);
+    state.into_dyn()
 }
