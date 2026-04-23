@@ -47,8 +47,8 @@ cargo bench
 - [x] Quantum Entanglement (Bell State)
 - [x] Multi-qubit measurement decoding and statistical analysis
 - [x] Complex number support
+- [x] Implemented Pauli and phase gates
 
 ## Next Steps
-- Implement full Pauli and phase gates set: Z, S, T and Y.
 - Quantum Circuit API: Implement a higher-level abstraction to build circuits without manual matrix multiplication.
 - Standard Algorithms: Implement Deutsch-Jozsa and Grover's search as verification experiments.
