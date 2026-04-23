@@ -1,4 +1,4 @@
-use ndarray::{Array, ArrayD, Dimension, IntoDimension, IxDyn};
+use ndarray::{Array, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
 use num_complex::Complex64;
 
 /// Computes the universal Kronecker product (tensor product) of two arrays.
@@ -36,4 +36,30 @@ where
     }
 
     res
+}
+
+/// Applies a single-qubit gate to a multi-qubit state vector in-place.
+///
+/// This is a high-performance, matrix-free implementation that manipulates
+/// the state vector directly. It avoids the exponential memory overhead of
+/// constructing a global operator matrix via Kronecker product.
+///
+/// The algorithm identifies and updates pairs of amplitudes (i0, i1)
+/// that correspond to the target qubit's 0 and 1 states.
+pub fn apply_gate_inplace(state: &mut ArrayD<Complex64>, gate: &Array2<Complex64>, target: usize) {
+    let stride = 1 << target;
+    let size = state.len();
+
+    for i in (0..size).step_by(stride * 2) {
+        for j in 0..stride {
+            let i0 = i + j;
+            let i1 = i0 + stride;
+
+            let a = state[i0];
+            let b = state[i1];
+
+            state[i0] = gate[[0, 0]] * a + gate[[0, 1]] * b;
+            state[i1] = gate[[1, 0]] * a + gate[[1, 1]] * b;
+        }
+    }
 }
