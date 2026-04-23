@@ -47,8 +47,11 @@ cargo bench
 - [x] Quantum Entanglement (Bell State)
 - [x] Multi-qubit measurement decoding and statistical analysis
 - [x] Complex number support
+- [x] Implemented Pauli and phase gates
+- [x] In-place Gate Application (Matrix-free logic)
 
 ## Next Steps
-- Implement full Pauli and phase gates set: Z, S, T and Y.
+- Performance benchmarking using criterion to analyze scaling and memory efficiency vs matrix-based methods.
+- Implement optimized controlled gates (CNOT, CZ) without constructing global matrices.
 - Quantum Circuit API: Implement a higher-level abstraction to build circuits without manual matrix multiplication.
 - Standard Algorithms: Implement Deutsch-Jozsa and Grover's search as verification experiments.

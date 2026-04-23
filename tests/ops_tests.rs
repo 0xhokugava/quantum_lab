@@ -1,7 +1,8 @@
 use ndarray::Array1;
+use ndarray::linalg::Dot;
 use num_complex::Complex64;
-use quantum_lab::constants::{q0, q1};
-use quantum_lab::ops::tensor_product;
+use quantum_lab::constants::{gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1};
+use quantum_lab::ops::{apply_gate_inplace, tensor_product};
 
 fn to_c64(re: f64) -> Complex64 {
     Complex64::new(re, 0.0)
@@ -67,4 +68,44 @@ fn test_tensor_product_three_qubits() {
 
     assert_eq!(res_3q, expected);
     assert_eq!(res_3q.len(), 8);
+}
+
+#[test]
+fn test_apply_gate_inplace() {
+    let state = tensor_product(&q0(), &q0());
+    let gates = vec![
+        (gate_h(), "H"),
+        (gate_x(), "X"),
+        (gate_y(), "Y"),
+        (gate_z(), "Z"),
+        (gate_s(), "S"),
+        (gate_t(), "T"),
+    ];
+
+    let identity = identity();
+    let n_qubits = state.len().ilog2() as usize;
+
+    for target in 0..n_qubits {
+        for (gate, name) in &gates {
+            let mut state_inplace = state.clone();
+
+            let full = match target {
+                0 => tensor_product(&identity, &gate),
+                1 => tensor_product(&gate, &identity),
+                _ => unreachable!(),
+            };
+
+            let expected = full.dot(&state);
+            apply_gate_inplace(&mut state_inplace, gate, target);
+            for (i, (a, b)) in state_inplace.iter().zip(expected.iter()).enumerate() {
+                assert!(
+                    (a - b).norm() < 1e-10,
+                    "Gate {} failed on target {}, index {}",
+                    name,
+                    target,
+                    i
+                );
+            }
+        }
+    }
 }
