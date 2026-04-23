@@ -1,6 +1,6 @@
 use ndarray::{Array1, array};
 use num_complex::Complex64;
-use quantum_lab::formatting::to_dirac;
+use quantum_lab::utils::to_dirac;
 use std::f64::consts::FRAC_1_SQRT_2;
 
 fn to_c64(re: f64) -> Complex64 {

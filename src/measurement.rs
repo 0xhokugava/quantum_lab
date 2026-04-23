@@ -1,7 +1,7 @@
 use ndarray::Array1;
+use num_complex::Complex64;
 use rand::*;
 use std::collections::HashMap;
-use num_complex::Complex64;
 
 /// Performs a quantum measurement on a state vector of any size.
 /// Collapses the superposition into a basis state based on Born's rule (|ψ|²).

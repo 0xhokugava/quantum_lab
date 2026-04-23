@@ -1,6 +1,8 @@
-use ndarray::array;
+use ndarray::{Array2, array};
 use num_complex::Complex64;
-use quantum_lab::constants::{gate_cnot, gate_h, gate_x, identity, q0, q1};
+use quantum_lab::constants::{
+    gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
+};
 
 fn to_c64(re: f64) -> Complex64 {
     Complex64::new(re, 0.0)
@@ -36,15 +38,10 @@ fn test_gate_h_is_unitary() {
 #[test]
 fn test_cnot_logic() {
     let input = array![to_c64(0.0), to_c64(0.0), to_c64(1.0), to_c64(0.0),];
-
     let output = gate_cnot().dot(&input);
-
     let expected = array![to_c64(0.0), to_c64(0.0), to_c64(0.0), to_c64(1.0),];
-
     assert_eq!(output, expected);
-
     let input_01 = array![to_c64(0.0), to_c64(1.0), to_c64(0.0), to_c64(0.0),];
-
     let output_01 = gate_cnot().dot(&input_01);
     assert_eq!(output_01, input_01);
 }
@@ -52,4 +49,65 @@ fn test_cnot_logic() {
 #[test]
 fn test_identity_logic() {
     assert_eq!(identity().dot(&q0()), q0());
+}
+
+#[test]
+fn test_gate_z_logic() {
+    let input = array![to_c64(0.0), to_c64(1.0)];
+    let output = gate_z().dot(&input);
+    let expected = array![to_c64(0.0), to_c64(-1.0)];
+    for (a, b) in output.iter().zip(expected.iter()) {
+        assert!((*a - *b).norm() < 1e-10);
+    }
+}
+
+#[test]
+fn test_gate_z_preserves_probabilities() {
+    let state = gate_h().dot(&q0());
+    let state_z = gate_z().dot(&state);
+
+    let probs_before: Vec<f64> = state.iter().map(|x| x.norm_sqr()).collect();
+    let probs_after: Vec<f64> = state_z.iter().map(|x| x.norm_sqr()).collect();
+
+    for (a, b) in probs_before.iter().zip(probs_after.iter()) {
+        assert!((a - b).abs() < 1e-10);
+    }
+}
+
+// Helper to compare complex matrices with precision delta
+fn assert_matrix_eq(a: &Array2<Complex64>, b: &Array2<Complex64>) {
+    let delta = 1e-15;
+    assert!(
+        a.iter().zip(b.iter()).all(|(x, y)| (x - y).norm() < delta),
+        "Matrices are not equal!\nLeft: {:?}\nRight: {:?}",
+        a,
+        b
+    );
+}
+
+#[test]
+fn test_pauli_identities() {
+    // Identity: iXZ = Y
+    let i = Complex64::i();
+    let xz = gate_x().dot(&gate_z());
+    let ixz = xz.mapv(|val| val * i);
+    assert_matrix_eq(&ixz, &gate_y());
+}
+
+#[test]
+fn test_phase_hierarchy() {
+    // T^2 = S
+    let t_squared = gate_t().dot(&gate_t());
+    assert_matrix_eq(&t_squared, &gate_s());
+
+    // S^2 = Z
+    let s_squared = gate_s().dot(&gate_s());
+    assert_matrix_eq(&s_squared, &gate_z());
+}
+
+#[test]
+fn test_hadamard_conjugation() {
+    // HZH = X (Hadamard transforms a Z-basis to X-basis)
+    let hzh = gate_h().dot(&gate_z()).dot(&gate_h());
+    assert_matrix_eq(&hzh, &gate_x());
 }

@@ -1,9 +1,9 @@
 use crate::constants::{gate_cnot, gate_h, identity, q0};
-use crate::formatting::{decode_measurement, to_dirac};
 use crate::measurement::test_measure;
 use crate::ops::tensor_product;
+use crate::utils::{decode_measurement, to_dirac};
 
-pub fn entanglement() {
+pub fn run() {
     println!("\n4. Quantum Entanglement (The Bell State):");
 
     let bell_init = tensor_product(&q0(), &q0())
