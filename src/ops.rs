@@ -1,4 +1,4 @@
-use ndarray::{Array, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
+use ndarray::{Array, Array1, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
 use num_complex::Complex64;
 
 /// Computes the universal Kronecker product (tensor product) of two arrays.
@@ -60,6 +60,31 @@ pub fn apply_gate_inplace(state: &mut ArrayD<Complex64>, gate: &Array2<Complex64
 
             state[i0] = gate[[0, 0]] * a + gate[[0, 1]] * b;
             state[i1] = gate[[1, 0]] * a + gate[[1, 1]] * b;
+        }
+    }
+}
+
+/// Applies a CNOT (controlled-NOT) gate to a multi-qubit state vector in-place.
+///
+/// This is a high-performance, matrix-free implementation that avoids
+/// constructing the full 2^n × 2^n operator matrix. Instead, it directly
+/// manipulates the state vector using bitwise operations.
+///
+/// The algorithm iterates over all basis state indices and identifies pairs
+/// of amplitudes (i, j) that differ only in the target qubit. For indices where
+/// the control qubit is set to 1, the corresponding amplitudes are swapped,
+/// effectively performing a conditional bit-flip on the target qubit.
+///
+/// Each pair is processed exactly once using an ordering condition (i < j)
+/// to avoid redundant swaps.
+pub fn apply_cnot_inplace(state: &mut Array1<Complex64>, control: usize, target: usize) {
+    let target_mask = 1 << target;
+    for i in 0..state.len() {
+        if ((i >> control) & 1) == 1 {
+            let j = i ^ target_mask;
+            if i < j {
+                state.swap(i, j);
+            }
         }
     }
 }
