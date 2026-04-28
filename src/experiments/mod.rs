@@ -1,3 +1,4 @@
+mod cnot_inplace_verification;
 pub mod cnot_verification;
 pub mod entanglement;
 mod inplace_verification;
@@ -10,4 +11,5 @@ pub fn run_all() {
     cnot_verification::run();
     entanglement::run();
     inplace_verification::run();
+    cnot_inplace_verification::run();
 }

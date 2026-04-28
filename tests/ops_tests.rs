@@ -1,8 +1,10 @@
-use ndarray::Array1;
 use ndarray::linalg::Dot;
+use ndarray::{Array1, Array2};
 use num_complex::Complex64;
-use quantum_lab::constants::{gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1};
-use quantum_lab::ops::{apply_gate_inplace, tensor_product};
+use quantum_lab::constants::{
+    gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
+};
+use quantum_lab::ops::{apply_cnot_inplace, apply_gate_inplace, tensor_product};
 
 fn to_c64(re: f64) -> Complex64 {
     Complex64::new(re, 0.0)
@@ -102,6 +104,58 @@ fn test_apply_gate_inplace() {
                     (a - b).norm() < 1e-10,
                     "Gate {} failed on target {}, index {}",
                     name,
+                    target,
+                    i
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn test_apply_cnot_inplace() {
+    let state = tensor_product(&q0(), &q0());
+
+    let n_qubits = state.len().ilog2() as usize;
+
+    for control in 0..n_qubits {
+        for target in 0..n_qubits {
+            if control == target {
+                continue;
+            }
+
+            let mut state_inplace = state.clone();
+
+            let full = match (control, target) {
+                (0, 1) => gate_cnot().clone(),
+                (1, 0) => {
+                    let mut m = Array2::zeros((4, 4));
+                    // |00> -> |00>
+                    m[[0, 0]] = 1.0.into();
+                    // |01> -> |11>
+                    m[[3, 1]] = 1.0.into();
+                    // |10> -> |10>
+                    m[[2, 2]] = 1.0.into();
+                    // |11> -> |01>
+                    m[[1, 3]] = 1.0.into();
+                    m
+                }
+                _ => unreachable!(),
+            };
+
+            let state_vec = state.clone().into_dimensionality::<ndarray::Ix1>().unwrap();
+
+            let expected = full.dot(&state_vec);
+
+            apply_cnot_inplace(&mut state_inplace, control, target);
+
+            let state_inplace_vec = state_inplace.into_dimensionality::<ndarray::Ix1>().unwrap();
+
+            for (i, (a, b)) in state_inplace_vec.iter().zip(expected.iter()).enumerate() {
+                assert!(
+                    (a - b).norm() < 1e-10,
+                    "CNOT failed for control {}, target {}, index {}",
+                    control,
                     target,
                     i
                 );
