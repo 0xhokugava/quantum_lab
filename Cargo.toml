@@ -16,3 +16,7 @@ harness = false
 [[bench]]
 name = "gate_bench"
 harness = false
+
+[[bench]]
+name = "cnot_bench"
+harness = false
