@@ -58,3 +58,29 @@ pub fn q0_n(n: usize) -> ArrayD<Complex64> {
     state[0] = Complex64::new(1.0, 0.0);
     state.into_dyn()
 }
+
+/// Asserts that two quantum state vectors are approximately equal.
+///
+/// This function compares two state vectors element-wise using a small
+/// numerical tolerance to account for floating-point precision errors.
+/// It assumes both inputs represent flattened quantum states (1D),
+/// even if stored as `ArrayD`.
+///
+/// Panics if:
+/// - The vectors have different lengths
+/// - Any pair of amplitudes differs beyond the allowed tolerance
+///
+/// This is used as a validation step to ensure the correctness of
+/// optimized (in-place) implementations against matrix-based baselines.
+pub fn assert_states_close(a: &ArrayD<Complex64>, b: &ArrayD<Complex64>) {
+    assert_eq!(a.len(), b.len());
+    for (i, (x, y)) in a.iter().zip(b.iter()).enumerate() {
+        assert!(
+            (x - y).norm() < 1e-15,
+            "Mismatch at index {}: expected {}, got {}",
+            i,
+            y,
+            x
+        );
+    }
+}

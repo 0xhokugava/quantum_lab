@@ -114,9 +114,7 @@ fn test_apply_gate_inplace() {
 
 #[test]
 fn test_apply_cnot_inplace() {
-    let state = tensor_product(&q0(), &q0())
-        .into_dimensionality::<ndarray::Ix1>()
-        .unwrap();
+    let state = tensor_product(&q0(), &q0());
 
     let n_qubits = state.len().ilog2() as usize;
 
@@ -145,11 +143,15 @@ fn test_apply_cnot_inplace() {
                 _ => unreachable!(),
             };
 
-            let expected = full.dot(&state);
+            let state_vec = state.clone().into_dimensionality::<ndarray::Ix1>().unwrap();
+
+            let expected = full.dot(&state_vec);
 
             apply_cnot_inplace(&mut state_inplace, control, target);
 
-            for (i, (a, b)) in state_inplace.iter().zip(expected.iter()).enumerate() {
+            let state_inplace_vec = state_inplace.into_dimensionality::<ndarray::Ix1>().unwrap();
+
+            for (i, (a, b)) in state_inplace_vec.iter().zip(expected.iter()).enumerate() {
                 assert!(
                     (a - b).norm() < 1e-10,
                     "CNOT failed for control {}, target {}, index {}",

@@ -1,4 +1,4 @@
-use ndarray::{Array, Array1, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
+use ndarray::{Array, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
 use num_complex::Complex64;
 
 /// Computes the universal Kronecker product (tensor product) of two arrays.
@@ -77,7 +77,8 @@ pub fn apply_gate_inplace(state: &mut ArrayD<Complex64>, gate: &Array2<Complex64
 ///
 /// Each pair is processed exactly once using an ordering condition (i < j)
 /// to avoid redundant swaps.
-pub fn apply_cnot_inplace(state: &mut Array1<Complex64>, control: usize, target: usize) {
+pub fn apply_cnot_inplace(state: &mut ArrayD<Complex64>, control: usize, target: usize) {
+    assert_eq!(state.ndim(), 1);
     let target_mask = 1 << target;
     for i in 0..state.len() {
         if ((i >> control) & 1) == 1 {

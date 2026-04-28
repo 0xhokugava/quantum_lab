@@ -1,6 +1,6 @@
 use crate::constants::{gate_h, identity};
 use crate::ops::{apply_gate_inplace, tensor_product};
-use crate::utils::{q0_n, to_dirac};
+use crate::utils::{assert_states_close, q0_n, to_dirac};
 
 pub fn run() {
     println!("\n5. In-place Gate Application Verification");
@@ -30,7 +30,7 @@ pub fn run() {
         .clone()
         .into_dimensionality::<ndarray::Ix1>()
         .unwrap();
-    let expected_state = matrix_2d.dot(&state_vec);
+    let expected_state = matrix_2d.dot(&state_vec).into_dyn();
 
     // Apply the gate directly to the state vector using bit-masking logic.
     // This avoids large matrix allocations and redundant zero-multiplications.
@@ -38,21 +38,10 @@ pub fn run() {
     apply_gate_inplace(&mut state_inplace, &gate, target_qubit);
 
     // Compare the optimized result with the matrix multiplication baseline.
-    // Use a high precision delta (1e-15) to ensure numerical consistency.
-    let mut is_correct = true;
-    for (i, (a, b)) in state_inplace.iter().zip(expected_state.iter()).enumerate() {
-        if (a - b).norm() > 1e-15 {
-            println!(
-                "   [ERROR] Mismatch at index {}: expected {}, got {}",
-                i, b, a
-            );
-            is_correct = false;
-            break;
-        }
-    }
+    // Use a high-precision delta (1e-15) to ensure numerical consistency.
 
-    if is_correct {
-        println!("   [SUCCESS] In-place result matches matrix multiplication perfectly.");
-        println!("   Resulting state: {}", to_dirac(&state_inplace));
-    }
+    assert_states_close(&state_inplace, &expected_state);
+
+    println!("   [SUCCESS] In-place result matches matrix multiplication perfectly.");
+    println!("   Resulting state: {}", to_dirac(&state_inplace));
 }
