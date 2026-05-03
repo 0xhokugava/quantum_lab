@@ -89,3 +89,68 @@ pub fn apply_cnot_inplace(state: &mut ArrayD<Complex64>, control: usize, target:
         }
     }
 }
+
+/// Applies an arbitrary k-qubit gate to a multi-qubit state vector in-place.
+///
+/// The gate must have the shape 2^k × 2^k, where k = targets.len().
+/// The state is expected to be a flattened 1D state vector of length 2^n.
+///
+/// This is the generic version of the in-place gate application:
+/// - k = 1 covers single-qubit gates
+/// - k = 2 covers two-qubit gates such as CNOT
+pub fn apply_k_qubit_gate_inplace(
+    state: &mut ArrayD<Complex64>,
+    gate: &Array2<Complex64>,
+    targets: &[usize],
+) {
+    assert_eq!(state.ndim(), 1);
+
+    let k = targets.len();
+    let dim = 1 << k;
+
+    assert_eq!(gate.shape(), &[dim, dim]);
+
+    let size = state.len();
+
+    let mut target_mask = 0usize;
+    for &t in targets {
+        target_mask |= 1 << t;
+    }
+
+    let mut indices = vec![0usize; dim];
+    let mut block = vec![Complex64::new(0.0, 0.0); dim];
+    let mut result = vec![Complex64::new(0.0, 0.0); dim];
+
+    for base in 0..size {
+        if base & target_mask != 0 {
+            continue;
+        }
+
+        for j in 0..dim {
+            let mut idx = base;
+
+            for (bit_pos, &t) in targets.iter().enumerate() {
+                if (j >> bit_pos) & 1 == 1 {
+                    idx |= 1 << t;
+                }
+            }
+
+            indices[j] = idx;
+            block[j] = state[idx];
+        }
+
+        for r in 0..dim {
+            let mut acc = Complex64::new(0.0, 0.0);
+
+            for c in 0..dim {
+                acc += gate[[r, c]] * block[c];
+            }
+
+            result[r] = acc;
+        }
+
+        for j in 0..dim {
+            state[indices[j]] = result[j];
+        }
+    }
+}
