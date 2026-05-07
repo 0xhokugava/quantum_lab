@@ -1,24 +1,17 @@
-use crate::constants::{gate_cnot, gate_h, identity, q0};
+use crate::circuit::Circuit;
 use crate::measurement::test_measure;
-use crate::ops::tensor_product;
 use crate::utils::{decode_measurement, to_dirac};
 
 pub fn run() {
-    println!("\n4. Quantum Entanglement (The Bell State):");
+    println!("\n4. Quantum Entanglement (The Bell State):\n");
 
-    let bell_init = tensor_product(&q0(), &q0())
-        .into_dimensionality::<ndarray::Ix1>()
-        .expect("Initialization failed");
+    let mut circuit = Circuit::new(2);
 
-    let h_2q = tensor_product(&gate_h(), &identity())
-        .into_dimensionality::<ndarray::Ix2>()
-        .expect("H-gate matrix creation failed");
+    circuit.h(1).cnot(0, 1);
 
-    let bell_superposition = h_2q.dot(&bell_init);
-    println!("   After H ⊗ I: {}", to_dirac(&bell_superposition));
+    let bell_state = circuit.run().into_dimensionality::<ndarray::Ix1>().unwrap();
 
-    let bell_state = gate_cnot().dot(&bell_superposition);
-    println!("   Final Bell State: {}", to_dirac(&bell_state));
+    println!("   Bell State: {}", to_dirac(&bell_state));
 
     let stats = test_measure(&bell_state, 100_000);
     let n_qubits = (bell_state.len() as f64).log2() as usize;
