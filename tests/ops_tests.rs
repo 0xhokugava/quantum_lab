@@ -1,5 +1,5 @@
 use ndarray::linalg::Dot;
-use ndarray::{Array1, Array2, Ix1, Ix2};
+use ndarray::{Array1, Array2};
 use num_complex::Complex64;
 use quantum_lab::constants::{
     gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
@@ -7,11 +7,7 @@ use quantum_lab::constants::{
 use quantum_lab::ops::{
     apply_cnot_inplace, apply_gate_inplace, apply_k_qubit_gate_inplace, tensor_product,
 };
-use quantum_lab::utils::{assert_states_close, q0_n};
-
-fn to_c64(re: f64) -> Complex64 {
-    Complex64::new(re, 0.0)
-}
+use quantum_lab::utils::{assert_states_close, build_full_operator, q0_n, to_c64};
 
 #[test]
 fn test_tensor_product() {
@@ -247,35 +243,34 @@ fn test_k_qubit_gate_non_adjacent_targets() {
     assert_states_close(&state_inplace, &expected);
 }
 
-fn build_full_operator(gate: &Array2<Complex64>, targets: &[usize], n: usize) -> Array2<Complex64> {
-    let size = 1 << n;
-    let mut full = Array2::<Complex64>::zeros((size, size));
+#[test]
+fn test_k_qubit_gate_k3() {
+    let n = 3;
+    let targets = vec![2, 1, 0];
 
-    let k = targets.len();
-    let dim = 1 << k;
+    let state_initial = q0_n(n);
+    let dim = 1 << targets.len();
+    let mut gate = Array2::<Complex64>::zeros((dim, dim));
 
-    for col in 0..size {
-        let mut local_col = 0;
-        for (pos, &t) in targets.iter().enumerate() {
-            if (col >> t) & 1 == 1 {
-                local_col |= 1 << pos;
-            }
-        }
-
-        let mut base = col;
-        for &t in targets {
-            base &= !(1 << t);
-        }
-
-        for local_row in 0..dim {
-            let mut row = base;
-            for (pos, &t) in targets.iter().enumerate() {
-                if (local_row >> pos) & 1 == 1 {
-                    row |= 1 << t;
-                }
-            }
-            full[[row, col]] = gate[[local_row, local_col]];
-        }
+    for col in 0..dim {
+        let row = (col + 1) % dim;
+        gate[[row, col]] = Complex64::new(1.0, 0.0);
     }
-    full
+
+    // --- MATRIX BASELINE ---
+    let full = build_full_operator(&gate, &targets, n);
+
+    let state_vec = state_initial
+        .clone()
+        .into_dimensionality::<ndarray::Ix1>()
+        .unwrap();
+
+    let expected = full.dot(&state_vec).into_dyn();
+
+    // --- IN-PLACE ---
+    let mut state_inplace = state_initial.clone();
+    apply_k_qubit_gate_inplace(&mut state_inplace, &gate, &targets);
+
+    // --- ASSERT ---
+    assert_states_close(&state_inplace, &expected);
 }

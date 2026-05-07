@@ -1,4 +1,4 @@
-use ndarray::{Array, Array1, ArrayD, Dimension};
+use ndarray::{Array, Array1, Array2, ArrayD, Dimension};
 use num_complex::Complex64;
 
 /// Formats a quantum state (represented as a vector or dynamic array) into Dirac notation.
@@ -83,4 +83,61 @@ pub fn assert_states_close(a: &ArrayD<Complex64>, b: &ArrayD<Complex64>) {
             x
         );
     }
+}
+
+/// Converts a real `f64` value into a `Complex64` number with zero imaginary part.
+///
+/// This is a small helper for constructing real-valued matrices in tests,
+/// where coefficients are often written as plain real numbers.
+pub fn to_c64(re: f64) -> Complex64 {
+    Complex64::new(re, 0.0)
+}
+
+/// Builds the full `2^n × 2^n` matrix representation of a local k-qubit gate.
+///
+/// This helper is intended for tests only. It constructs the dense global operator
+/// corresponding to applying `gate` on the qubits listed in `targets`, while all
+/// other qubits are left unchanged.
+///
+/// The local gate must have the shape `2^k × 2^k`, where `k = targets.len()`.
+/// The order of `targets` defines how local gate indices are mapped to global
+/// qubit positions.
+///
+/// This function is useful as a correctness baseline for comparing the optimized
+/// in-place implementation against a dense matrix-based result.
+pub fn build_full_operator(
+    gate: &Array2<Complex64>,
+    targets: &[usize],
+    n: usize,
+) -> Array2<Complex64> {
+    let size = 1 << n;
+    let mut full = Array2::<Complex64>::zeros((size, size));
+
+    let k = targets.len();
+    let dim = 1 << k;
+
+    for col in 0..size {
+        let mut local_col = 0;
+        for (pos, &t) in targets.iter().enumerate() {
+            if (col >> t) & 1 == 1 {
+                local_col |= 1 << pos;
+            }
+        }
+
+        let mut base = col;
+        for &t in targets {
+            base &= !(1 << t);
+        }
+
+        for local_row in 0..dim {
+            let mut row = base;
+            for (pos, &t) in targets.iter().enumerate() {
+                if (local_row >> pos) & 1 == 1 {
+                    row |= 1 << t;
+                }
+            }
+            full[[row, col]] = gate[[local_row, local_col]];
+        }
+    }
+    full
 }
