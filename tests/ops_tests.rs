@@ -4,11 +4,10 @@ use num_complex::Complex64;
 use quantum_lab::constants::{
     gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
 };
-use quantum_lab::ops::{apply_cnot_inplace, apply_gate_inplace, tensor_product};
-
-fn to_c64(re: f64) -> Complex64 {
-    Complex64::new(re, 0.0)
-}
+use quantum_lab::ops::{
+    apply_cnot_inplace, apply_gate_inplace, apply_k_qubit_gate_inplace, tensor_product,
+};
+use quantum_lab::utils::{assert_states_close, build_full_operator, q0_n, to_c64};
 
 #[test]
 fn test_tensor_product() {
@@ -162,4 +161,116 @@ fn test_apply_cnot_inplace() {
             }
         }
     }
+}
+
+#[test]
+fn test_k_qubit_gate_general() {
+    let n = 3;
+    let targets = vec![1, 0];
+
+    let state_initial = q0_n(n);
+    let gate = gate_cnot();
+
+    // --- MATRIX BASELINE ---
+    let full = build_full_operator(&gate, &targets, n);
+
+    let state_vec = state_initial
+        .clone()
+        .into_dimensionality::<ndarray::Ix1>()
+        .unwrap();
+
+    let expected = full.dot(&state_vec).into_dyn();
+
+    // --- IN-PLACE ---
+    let mut state_inplace = state_initial.clone();
+    apply_k_qubit_gate_inplace(&mut state_inplace, &gate, &targets);
+
+    // --- ASSERT ---
+    assert_states_close(&state_inplace, &expected);
+}
+
+#[test]
+fn test_k_qubit_gate_k1() {
+    let n = 3;
+    let target = 1;
+
+    let state_initial = q0_n(n);
+    let gate = gate_h();
+
+    let targets = vec![target];
+
+    // --- MATRIX BASELINE ---
+    let full = build_full_operator(&gate, &targets, n);
+
+    let state_vec = state_initial
+        .clone()
+        .into_dimensionality::<ndarray::Ix1>()
+        .unwrap();
+
+    let expected = full.dot(&state_vec).into_dyn();
+
+    // --- IN-PLACE ---
+    let mut state_inplace = state_initial.clone();
+    apply_k_qubit_gate_inplace(&mut state_inplace, &gate, &targets);
+
+    // --- ASSERT ---
+    assert_states_close(&state_inplace, &expected);
+}
+
+#[test]
+fn test_k_qubit_gate_non_adjacent_targets() {
+    let n = 3;
+    let targets = vec![2, 0];
+
+    let state_initial = q0_n(n);
+    let gate = gate_cnot();
+
+    // --- MATRIX BASELINE ---
+    let full = build_full_operator(&gate, &targets, n);
+
+    let state_vec = state_initial
+        .clone()
+        .into_dimensionality::<ndarray::Ix1>()
+        .unwrap();
+
+    let expected = full.dot(&state_vec).into_dyn();
+
+    // --- IN-PLACE ---
+    let mut state_inplace = state_initial.clone();
+    apply_k_qubit_gate_inplace(&mut state_inplace, &gate, &targets);
+
+    // --- ASSERT ---
+    assert_states_close(&state_inplace, &expected);
+}
+
+#[test]
+fn test_k_qubit_gate_k3() {
+    let n = 3;
+    let targets = vec![2, 1, 0];
+
+    let state_initial = q0_n(n);
+    let dim = 1 << targets.len();
+    let mut gate = Array2::<Complex64>::zeros((dim, dim));
+
+    for col in 0..dim {
+        let row = (col + 1) % dim;
+        gate[[row, col]] = Complex64::new(1.0, 0.0);
+    }
+
+    // --- MATRIX BASELINE ---
+    let full = build_full_operator(&gate, &targets, n);
+
+    let state_vec = state_initial
+        .clone()
+        .into_dimensionality::<ndarray::Ix1>()
+        .unwrap();
+
+    let expected = full.dot(&state_vec).into_dyn();
+
+    // --- IN-PLACE ---
+    let mut state_inplace = state_initial.clone();
+    apply_k_qubit_gate_inplace(&mut state_inplace, &gate, &targets);
+
+    // --- ASSERT ---
+    assert_states_close(&state_inplace, &expected);
 }

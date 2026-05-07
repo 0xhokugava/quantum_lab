@@ -1,9 +1,9 @@
 mod cnot_inplace_verification;
-pub mod cnot_verification;
-pub mod entanglement;
+mod cnot_verification;
+mod entanglement;
 mod inplace_verification;
-pub mod single_qubit;
-pub mod tensor_product_example;
+mod single_qubit;
+mod tensor_product_example;
 
 pub fn run_all() {
     single_qubit::run();
