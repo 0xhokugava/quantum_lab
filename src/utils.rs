@@ -158,12 +158,15 @@ pub fn to_1d(state: ArrayD<Complex64>) -> Array1<Complex64> {
 /// This helper keeps single-qubit experiments concise by avoiding repeated
 /// `Circuit::new(1)` and `run()` boilerplate for independent scenarios.
 pub fn run_1q(build: impl FnOnce(&mut Circuit)) -> Array1<Complex64> {
-    let mut circuit = Circuit::new(1);
+    run_circuit(1, build)
+}
 
+/// Builds and runs a circuit with the given number of qubits.
+///
+/// This helper keeps experiments concise by avoiding repeated
+/// `Circuit::new(n)` and `run()` boilerplate for independent scenarios.
+pub fn run_circuit(n_qubits: usize, build: impl FnOnce(&mut Circuit)) -> Array1<Complex64> {
+    let mut circuit = Circuit::new(n_qubits);
     build(&mut circuit);
-
-    circuit
-        .run()
-        .into_dimensionality::<ndarray::Ix1>()
-        .expect("Circuit output must be a 1D state vector")
+    to_1d(circuit.run())
 }

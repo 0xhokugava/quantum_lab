@@ -24,6 +24,11 @@ impl Circuit {
         }
     }
 
+    /// Adds a gate operation to the circuit without executing it immediately.
+    ///
+    /// The gate is stored together with its target qubits and will be applied later
+    /// when `run()` is called. The gate matrix must have the shape `2^k × 2^k`,
+    /// where `k = targets.len()`.
     pub fn add_gate(&mut self, gate: Array2<Complex64>, targets: &[usize]) -> &mut Self {
         assert!(!targets.is_empty(), "Gate must target at least one qubit");
         for &target in targets {
@@ -91,6 +96,10 @@ impl Circuit {
         self.add_gate(gate_t(), &[target])
     }
 
+    /// Executes all scheduled gate operations on the initial `|0...0>` state.
+    ///
+    /// Operations are applied sequentially in the order they were added to the
+    /// circuit. The execution uses the generic in-place k-qubit gate engine.
     pub fn run(&self) -> ArrayD<Complex64> {
         let mut state = q0_n(self.n_qubits);
 

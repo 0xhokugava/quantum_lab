@@ -1,15 +1,12 @@
-mod cnot_inplace_verification;
-mod cnot_verification;
-mod entanglement;
-mod inplace_verification;
-mod single_qubit;
-mod tensor_product_example;
+pub mod circuit_demos;
+pub mod engine_verification;
+pub mod foundations;
 
 pub fn run_all() {
-    single_qubit::run();
-    tensor_product_example::run();
-    cnot_verification::run();
-    entanglement::run();
-    inplace_verification::run();
-    cnot_inplace_verification::run();
+    circuit_demos::single_qubit::run();
+    foundations::tensor_product_example::run();
+    circuit_demos::cnot_verification::run();
+    circuit_demos::entanglement::run();
+    engine_verification::inplace_verification::run();
+    engine_verification::cnot_inplace_verification::run();
 }
