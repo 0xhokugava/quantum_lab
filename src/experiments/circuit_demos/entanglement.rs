@@ -1,0 +1,39 @@
+use crate::circuit::Circuit;
+use crate::measurement::test_measure;
+use crate::utils::{decode_measurement, to_dirac};
+
+pub fn run() {
+    println!("\n4. Quantum Entanglement (The Bell State):\n");
+
+    let n_qubits = 2;
+    let shots = 100_000;
+
+    let mut circuit = Circuit::new(n_qubits);
+    circuit.h(1).cnot(0, 1);
+
+    let bell_state = circuit
+        .run()
+        .into_dimensionality::<ndarray::Ix1>()
+        .expect("Circuit output must be a 1D state vector");
+
+    println!("   Bell State: {}", to_dirac(&bell_state));
+
+    let stats = test_measure(&bell_state, shots);
+
+    let mut sorted_indices: Vec<_> = stats.keys().copied().collect();
+    sorted_indices.sort_unstable();
+
+    for index in sorted_indices {
+        let percentage = stats.get(&index).unwrap_or(&0.0);
+        let bit_string = decode_measurement(index, n_qubits);
+        println!("    |{}>: {:.2}%", bit_string, percentage);
+    }
+
+    println!("\n   Analysis:");
+    if stats.len() == 2 && stats.contains_key(&0) && stats.contains_key(&(bell_state.len() - 1)) {
+        println!("   Perfect correlation detected: states |00> and |11> share the probability.");
+        println!("   This confirms the non-local nature of the Bell State.");
+    } else if stats.len() > 2 {
+        println!("   State is in a multi-state superposition.");
+    }
+}
