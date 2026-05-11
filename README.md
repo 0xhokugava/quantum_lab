@@ -98,6 +98,7 @@ Benchmarks have been run up to 12 qubits to demonstrate the scaling difference w
 - [x] Circuit API wrappers for basic gates
 - [x] Circuit-based Bell state and single-qubit experiments
 - [x] Experiment structure reorganized by abstraction level
+- [x] Deutsch algorithm demo using the Circuit API (`n = 1` Deutsch–Jozsa case)
 
 ## Next Steps
 - Finalize the basic Circuit API and keep measurement as a separate layer for now.

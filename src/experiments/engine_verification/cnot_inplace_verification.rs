@@ -54,5 +54,5 @@ pub fn run() {
             println!("   → Bell State |Φ⁺> = (|00> + |11>)/√2");
         }
     }
-    println!("\n   [SUCCESS] CNOT verified on basis and superposition.");
+    println!("\n   [SUCCESS] CNOT verified on basis and superposition.\n");
 }

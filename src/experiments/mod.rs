@@ -9,4 +9,6 @@ pub fn run_all() {
     circuit_demos::entanglement::run();
     engine_verification::inplace_verification::run();
     engine_verification::cnot_inplace_verification::run();
+
+    crate::algorithms::deutsch::run_deutsch_demo();
 }

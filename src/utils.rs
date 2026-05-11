@@ -11,7 +11,7 @@ pub fn to_dirac<D: Dimension>(state: &Array<Complex64, D>) -> String {
     // Determine the number of qubits based on the vector length (2^n)
     let n_qubits = (state.len() as f64).log2() as usize;
 
-    state
+    let terms = state
         .iter()
         .enumerate()
         .filter(|(_, val)| val.norm() > 1e-6)
@@ -24,8 +24,13 @@ pub fn to_dirac<D: Dimension>(state: &Array<Complex64, D>) -> String {
                 width = n_qubits
             )
         })
-        .collect::<Vec<String>>()
-        .join("")
+        .collect::<Vec<String>>();
+
+    if terms.is_empty() {
+        "0".to_string()
+    } else {
+        terms.join(" + ")
+    }
 }
 
 /// Converts a state index into a human-readable binary string (Dirac notation).
