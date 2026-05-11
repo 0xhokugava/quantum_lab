@@ -1,4 +1,4 @@
-use super::deutsch_helpers::{classify_deutsch_result, query_probability, ANSWER, QUERY};
+use super::deutsch_helpers::{ANSWER, QUERY, classify_deutsch_result, query_probability};
 use crate::circuit::Circuit;
 use crate::utils::to_dirac;
 use ndarray::ArrayD;
