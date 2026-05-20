@@ -98,12 +98,13 @@ Benchmarks have been run up to 12 qubits to demonstrate the scaling difference w
 - [x] Circuit API wrappers for basic gates
 - [x] Circuit-based Bell state and single-qubit experiments
 - [x] Experiment structure reorganized by abstraction level
+- [x] Deutsch–Jozsa algorithm demo implemented through the Circuit API, including the `n = 1` Deutsch case and multi-query balanced/constant oracle examples.
 
 ## Next Steps
 - Finalize the basic Circuit API and keep measurement as a separate layer for now.
 - Add a small CLI layer for running demos and experiments from the command line.
 - Migrate educational experiments into CLI/examples.
-- Implement the Deutsch–Jozsa algorithm as the first algorithm-level demo.
+- Continue algorithm-level demos with Grover.
 - Implement Grover's search as a more advanced algorithm-level demo.
 - Add memory usage benchmarks vs. qubit count.
 - Improve documentation and comments across the project.

@@ -9,7 +9,7 @@ pub fn run() {
     let shots = 100_000;
 
     let mut circuit = Circuit::new(n_qubits);
-    circuit.h(1).cnot(0, 1);
+    circuit.h(1).cnot(1, 0);
 
     let bell_state = circuit
         .run()
