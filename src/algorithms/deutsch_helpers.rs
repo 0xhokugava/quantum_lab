@@ -29,3 +29,34 @@ pub(crate) fn classify_deutsch_result(state: &ArrayD<Complex64>) -> &'static str
         "balanced"
     }
 }
+
+// Computes P(query register = |00...0>) while ignoring the ANSWER qubit.
+//
+// Layout:
+// - bit 0 is ANSWER
+// - bits 1..=num_query_qubits are QUERY bits
+pub(crate) fn query_register_zero_probability(
+    state: &ArrayD<Complex64>,
+    num_query_qubits: usize,
+) -> f64 {
+    let query_mask = ((1usize << num_query_qubits) - 1) << 1;
+
+    state
+        .iter()
+        .enumerate()
+        .filter(|(basis_index, _)| (basis_index & query_mask) == 0)
+        .map(|(_, amplitude)| amplitude.norm_sqr())
+        .sum()
+}
+
+// Deutsch-Jozsa classification rule:
+//
+// constant oracle -> query register ends in |00...0>
+// balanced oracle -> query register never ends in |00...0>
+pub(crate) fn classify_deutsch_jozsa_result(
+    state: &ArrayD<Complex64>,
+    num_query_qubits: usize,
+) -> &'static str {
+    let p_zero = query_register_zero_probability(state, num_query_qubits);
+    if p_zero > 0.5 { "constant" } else { "balanced" }
+}

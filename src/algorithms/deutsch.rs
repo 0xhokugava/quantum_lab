@@ -66,11 +66,11 @@ impl DeutschOracle {
                 circuit.x(ANSWER);
             }
             DeutschOracle::BalancedIdentity => {
-                circuit.cnot(ANSWER, QUERY);
+                circuit.cnot(QUERY, ANSWER);
             }
             DeutschOracle::BalancedNot => {
                 circuit.x(QUERY);
-                circuit.cnot(ANSWER, QUERY);
+                circuit.cnot(QUERY, ANSWER);
                 circuit.x(QUERY);
             }
         }

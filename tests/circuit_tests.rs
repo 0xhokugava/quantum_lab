@@ -9,7 +9,7 @@ fn test_circuit_bell_state() {
     let mut circuit = Circuit::new(2);
 
     circuit.h(1);
-    circuit.cnot(0, 1);
+    circuit.cnot(1, 0);
 
     let result = circuit.run();
 

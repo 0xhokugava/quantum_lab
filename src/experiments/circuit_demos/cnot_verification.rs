@@ -7,15 +7,15 @@ use crate::utils::{run_circuit, to_dirac};
 /// - `CNOT|01>` leaves the state unchanged because the control qubit is `0`
 ///
 /// Argument order follows the simulator convention:
-/// `cnot(target, control)`.
+/// `cnot(control, target)`.
 pub fn run() {
     println!("\n3. CNOT Gate Logic:");
     let cnot_res_10 = run_circuit(2, |c| {
-        c.x(1).cnot(0, 1);
+        c.x(1).cnot(1, 0);
     });
     println!("   CNOT|10> = {} (Flip expected)", to_dirac(&cnot_res_10));
     let cnot_res_01 = run_circuit(2, |c| {
-        c.x(0).cnot(0, 1);
+        c.x(0).cnot(1, 0);
     });
     println!(
         "   CNOT|01> = {} (No flip expected)",

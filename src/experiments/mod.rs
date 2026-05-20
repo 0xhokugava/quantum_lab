@@ -11,4 +11,5 @@ pub fn run_all() {
     engine_verification::cnot_inplace_verification::run();
 
     crate::algorithms::deutsch::run_deutsch_demo();
+    crate::algorithms::deutsch_jozsa::run_deutsch_jozsa_demo();
 }
