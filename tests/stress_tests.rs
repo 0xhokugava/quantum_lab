@@ -3,9 +3,7 @@ use num_complex::Complex64;
 
 #[test]
 fn stress_large_state() {
-    // number of qubits
     let n = 14;
-
     // Compute the size of the state vector: 2^n (number of basis states)
     let size = 1 << n;
 

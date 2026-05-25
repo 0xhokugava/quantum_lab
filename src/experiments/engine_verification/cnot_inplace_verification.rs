@@ -50,7 +50,7 @@ pub fn run() {
         assert_states_close(&state_inplace, &expected_state);
 
         println!("   After  : {}", to_dirac(&state_inplace));
-        if label == "H|0> ⊗ |0>" {
+        if label == "H|0> ⊗ |0" {
             println!("   → Bell State |Φ⁺> = (|00> + |11>)/√2");
         }
     }

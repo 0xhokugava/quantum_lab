@@ -5,7 +5,7 @@ use num_complex::Complex64;
 // query - input qubit x
 // answer - auxiliary qubit y
 //
-// The simulator uses little-endian-style indexing here:
+// The simulator uses little-endian qubit indexing:
 // basis index bits are inspected with (basis_index >> qubit_index) & 1.
 pub(crate) const QUERY: usize = 1;
 pub(crate) const ANSWER: usize = 0;
