@@ -4,11 +4,8 @@ use num_complex::Complex64;
 
 /// Formats a quantum state (represented as a vector or dynamic array) into Dirac notation.
 /// Filters out near-zero amplitudes and represents indices in binary format.
-///
-/// Developed by Paul Dirac in 1939 to simplify quantum state representation.
 pub fn to_dirac<D: Dimension>(state: &Array<Complex64, D>) -> String {
     let state = state.view().into_dyn();
-    // Determine the number of qubits based on the vector length (2^n)
     let n_qubits = (state.len() as f64).log2() as usize;
 
     let terms = state
@@ -47,7 +44,8 @@ pub fn decode_measurement(index: usize, n_qubits: usize) -> String {
 ///
 /// Note:
 /// - This comparison does NOT account for global phase differences.
-/// - this function will consider two states that differ only by a global phase (e.g., ψ and -ψ) different.
+/// - This function will consider two states that differ only by a global phase
+///   (e.g., ψ and -ψ) different.
 /// - Suitable for simple validation, but not for full physical equivalence checks.
 pub fn approx_eq(a: &Array1<Complex64>, b: &Array1<Complex64>, eps: f64) -> bool {
     if a.len() != b.len() {

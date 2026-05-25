@@ -4,10 +4,8 @@ use crate::utils::{assert_states_close, q0_n, to_dirac};
 
 pub fn run() {
     println!("\n5. In-place Gate Application Verification");
-    // Initialize a 3-qubit system in the |000> state
     let n_qubits = 3;
     let state_initial = q0_n(n_qubits);
-    // Middle qubit
     let target_qubit = 1;
     let gate = gate_h();
 
@@ -19,12 +17,12 @@ pub fn run() {
     println!("   Target qubit: {}", target_qubit);
 
     // Construct the global operator (I ⊗ H ⊗ I) manually to serve as the ground truth
-    // Order: Leftmost (q2) -> Target (q1) -> Rightmost (q0) for Little-endian.
+    // Printed basis labels use standard binary order: |q2 q1 q0>.
+    // Qubit 0 is still the least significant bit internally.
     let mut full_matrix = identity().into_dyn();
     full_matrix = tensor_product(&gate, &full_matrix);
     full_matrix = tensor_product(&identity(), &full_matrix);
 
-    // Convert to 2D matrix and 1D vector for standard multiplication
     let matrix_2d = full_matrix.into_dimensionality::<ndarray::Ix2>().unwrap();
     let state_vec = state_initial
         .clone()
