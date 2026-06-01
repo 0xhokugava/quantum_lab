@@ -13,5 +13,5 @@ pub fn run_all() {
     // crate::algorithms::deutsch::run_deutsch_demo();
     // crate::algorithms::deutsch_jozsa::run_deutsch_jozsa_demo();
 
-    crate::algorithms::grover_search::run_grover_2_qubit_demo();
+    crate::algorithms::grover_search::run_grover_demo();
 }
