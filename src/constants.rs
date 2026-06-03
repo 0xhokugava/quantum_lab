@@ -102,6 +102,16 @@ pub fn gate_cnot() -> Array2<Complex64> {
     ]
 }
 
+/// Controlled-Z (CZ) gate.
+pub fn gate_cz() -> Array2<Complex64> {
+    array![
+        [1.0.into(), 0.0.into(), 0.0.into(), 0.0.into()],
+        [0.0.into(), 1.0.into(), 0.0.into(), 0.0.into()],
+        [0.0.into(), 0.0.into(), 1.0.into(), 0.0.into()],
+        [0.0.into(), 0.0.into(), 0.0.into(), (-1.0).into()],
+    ]
+}
+
 /// Returns a 2x2 Identity matrix (I).
 /// In quantum mechanics, an identity matrix represents a no-op gate.
 /// It is essential for multi-qubit systems when we want to apply a gate

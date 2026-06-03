@@ -1,7 +1,7 @@
 use ndarray::{Array2, ArrayD};
 use num_complex::Complex64;
 
-use crate::constants::{gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z};
+use crate::constants::{gate_cnot, gate_cz, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z};
 use crate::ops::apply_k_qubit_gate_inplace;
 use crate::utils::q0_n;
 
@@ -74,6 +74,10 @@ impl Circuit {
 
     pub fn cnot(&mut self, control: usize, target: usize) -> &mut Self {
         self.add_gate(gate_cnot(), &[target, control])
+    }
+
+    pub fn cz(&mut self, control: usize, target: usize) -> &mut Self {
+        self.add_gate(gate_cz(), &[target, control])
     }
 
     pub fn x(&mut self, target: usize) -> &mut Self {
