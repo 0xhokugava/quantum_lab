@@ -28,7 +28,6 @@ fn test_circuit_bell_state() {
 
     assert_states_close(&result, &expected);
 }
-
 #[test]
 fn test_circuit_applies_operations_in_order() {
     let mut circuit = Circuit::new(1);
@@ -36,7 +35,6 @@ fn test_circuit_applies_operations_in_order() {
     let expected = q0().into_dyn();
     assert_states_close(&result, &expected);
 }
-
 #[test]
 fn test_circuit_x_gate() {
     let mut circuit = Circuit::new(1);
@@ -44,11 +42,20 @@ fn test_circuit_x_gate() {
     let expected = q1().into_dyn();
     assert_states_close(&result, &expected);
 }
-
 #[test]
 fn test_circuit_chained_calls() {
     let mut circuit = Circuit::new(1);
     let result = circuit.x(0).x(0).run();
     let expected = q0().into_dyn();
     assert_states_close(&result, &expected);
+}
+#[test]
+fn test_cz_basis_state() {
+    let mut circuit = Circuit::new(2);
+    circuit.x(0).x(1).cz(0, 1).run();
+}
+#[test]
+fn test_cz_superposition() {
+    let mut circuit = Circuit::new(2);
+    circuit.h(0).h(1).cz(0, 1).run();
 }

@@ -7,6 +7,24 @@ use ndarray::ArrayD;
 use num_complex::Complex64;
 use std::ops::RangeInclusive;
 
+// Deutsch-Jozsa algorithm demo.
+//
+// This module implements the Deutsch-Jozsa algorithm for Boolean oracles that
+// are guaranteed to be either constant or balanced. The circuit uses one answer
+// qubit and one or more query qubits.
+//
+// Qubit layout:
+// - ANSWER is qubit 0
+// - query qubits are 1..=num_query_qubits
+//
+// The oracle applies Uf |x, y> = |x, y xor f(x)>.
+// After the final Hadamard's on the query register, the result is classified by
+// checking the probability of the query register being |00...0>.
+//
+// Expected behavior:
+// - constant oracle -> query register returns |00...0>
+// - balanced oracle -> query register does not return |00...0>
+
 #[derive(Debug, Clone, Copy)]
 pub enum DeutschJozsaOracle {
     ConstantZero,
