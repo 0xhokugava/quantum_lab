@@ -30,11 +30,10 @@ pub(crate) fn classify_deutsch_result(state: &ArrayD<Complex64>) -> &'static str
     }
 }
 
-// Computes P(query register = |00...0>) while ignoring the ANSWER qubit.
-//
-// Layout:
-// - bit 0 is ANSWER
-// - bits 1..=num_query_qubits are QUERY bits
+/// Computes P(query register = |00...0>) while ignoring the ANSWER qubit.
+/// Layout:
+/// - bit 0 is ANSWER
+/// - bits 1..=num_query_qubits are QUERY bits
 pub(crate) fn query_register_zero_probability(
     state: &ArrayD<Complex64>,
     num_query_qubits: usize,
@@ -49,10 +48,9 @@ pub(crate) fn query_register_zero_probability(
         .sum()
 }
 
-// Deutsch-Jozsa classification rule:
-//
-// constant oracle -> query register ends in |00...0>
-// balanced oracle -> query register never ends in |00...0>
+/// Deutsch-Jozsa classification rule:
+/// constant oracle -> query register ends in |00...0>
+/// balanced oracle -> query register never ends in |00...0>
 pub(crate) fn classify_deutsch_jozsa_result(
     state: &ArrayD<Complex64>,
     num_query_qubits: usize,

@@ -2,7 +2,7 @@ use ndarray::ArrayD;
 use num_complex::Complex64;
 use quantum_lab::circuit::Circuit;
 use quantum_lab::constants::{q0, q1};
-use quantum_lab::utils::{assert_states_close, to_dirac};
+use quantum_lab::utils::assert_states_close;
 
 #[test]
 fn test_circuit_bell_state() {

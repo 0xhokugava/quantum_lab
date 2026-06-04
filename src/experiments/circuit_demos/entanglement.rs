@@ -32,7 +32,7 @@ pub fn run() {
     println!("\n   Analysis:");
     if stats.len() == 2 && stats.contains_key(&0) && stats.contains_key(&(bell_state.len() - 1)) {
         println!("   Perfect correlation detected: states |00> and |11> share the probability.");
-        println!("   This confirms the non-local nature of the Bell State.");
+        println!("   This confirms the expected measurement correlation of the Bell state.");
     } else if stats.len() > 2 {
         println!("   State is in a multi-state superposition.");
     }

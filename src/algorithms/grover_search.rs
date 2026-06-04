@@ -1,9 +1,20 @@
 use crate::circuit::Circuit;
-use crate::engine::phase::apply_phase_oracle_in_place;
-use crate::utils::to_dirac;
-use ndarray::{Array1, ArrayD};
+use ndarray::ArrayD;
 use num_complex::Complex64;
 use std::f64::consts::PI;
+
+// Grover search algorithm demo.
+//
+// This module implements Grover search for a single marked basis state.
+// The circuit prepares a uniform superposition, applies a phase oracle for
+// the target state, and then applies diffusion for the recommended number
+// of Grover steps.
+//
+// The final result reports:
+// - final state vector
+// - marked target index
+// - target measurement probability
+// - number of Grover steps used
 
 #[derive(Debug)]
 pub struct GroverResult {
@@ -18,39 +29,25 @@ fn recommended_grover_steps(num_qubits: usize) -> usize {
     ((PI / 4.0) * search_space_size.sqrt()).floor() as usize
 }
 
-fn diffusion(state: &ArrayD<Complex64>) -> ArrayD<Complex64> {
-    let ampl_sum: Complex64 = state.iter().sum();
-    let mean = ampl_sum / Complex64::new(state.len() as f64, 0.0);
-
-    state
-        .iter()
-        .map(|ampl| (2.0 * mean) - *ampl)
-        .collect::<Array1<Complex64>>()
-        .into_dyn()
-}
-
 pub fn run_grover(num_qubits: usize, target_index: usize) -> GroverResult {
     assert!(num_qubits > 0);
     assert!(target_index < (1usize << num_qubits));
 
-    let mut circuit = Circuit::new(num_qubits);
-
-    for qubit in 0..num_qubits {
-        circuit.h(qubit);
-    }
-
-    let mut state = circuit.run();
     let grover_steps = recommended_grover_steps(num_qubits);
 
+    let mut circuit = Circuit::new(num_qubits);
+    circuit.h_all();
+
     for _ in 0..grover_steps {
-        apply_phase_oracle_in_place(&mut state, num_qubits, target_index);
-        state = diffusion(&state);
+        circuit.phase_oracle(target_index);
+        circuit.diffusion();
     }
 
-    let target_probability = state[target_index].norm_sqr();
+    let final_state = circuit.run();
+    let target_probability = final_state[target_index].norm_sqr();
 
     GroverResult {
-        final_state: state,
+        final_state,
         target_probability,
         target_index,
         grover_steps,
@@ -68,7 +65,7 @@ pub fn run_grover_demo() {
 
     println!("9. Grover search algorithm\n");
 
-    println!("   Final state: {}", to_dirac(&grover.final_state));
+    // println!("   Final state: {}", to_dirac(&grover.final_state));
     println!(
         "   Target state: {} index={}",
         format_basis(grover.target_index, num_qubits),

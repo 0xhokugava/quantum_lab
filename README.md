@@ -19,6 +19,7 @@ The long-term direction is to grow the simulator from a low-level educational im
 - **Generic k-qubit Gate Application**: Support for arbitrary local `2^k × 2^k` gates applied in-place.
 - **Circuit API**: High-level abstraction for building and executing quantum circuits declaratively.
 - **Benchmarking**: Criterion-based benchmarks comparing dense matrix-based execution with in-place execution.
+- **Algorithm Demos**: Deutsch, Deutsch-Jozsa, and Grover search demos built on top of the Circuit API.
 
 ## Architecture Status
 
@@ -54,6 +55,8 @@ cargo bench
 
 ## 📁 Project Structure
 - `benches/`: Performance benchmarks.
+- `src/algorithms/`: Algorithm-level demos and helpers, including Deutsch, Deutsch-Jozsa and Grover search.
+- `src/engine/`: Matrix-free in-place execution engine for applying gates and phase operations directly to the state vector.
 - `src/circuit.rs`: High-level quantum circuit abstraction.
 - `src/constants.rs`: Quantum gates and basis state definitions.
 - `src/experiments/`: Modular educational and verification experiments.
@@ -66,6 +69,7 @@ cargo bench
 - `src/ops.rs`: Core mathematical and state-vector operations.
 - `src/utils.rs`: Formatting, helpers, and state comparison utilities.
 - `tests/`: Integration tests.
+- `validation/`: External validation scripts and notes for comparing simulator behavior against reference frameworks such as Qiskit.
 
 ## Performance & Limitations
 
@@ -99,16 +103,21 @@ Benchmarks have been run up to 12 qubits to demonstrate the scaling difference w
 - [x] Circuit-based Bell state and single-qubit experiments
 - [x] Experiment structure reorganized by abstraction level
 - [x] Deutsch–Jozsa algorithm demo implemented through the Circuit API, including the `n = 1` Deutsch case and multi-query balanced/constant oracle examples.
+- [x] Grover search demo implemented through the Circuit API, including phase oracle, diffusion, recommended Grover step count, and tests for 2-, 3-, and 4-qubit cases.
 
 ## Next Steps
 - Finalize the basic Circuit API and keep measurement as a separate layer for now.
 - Add a small CLI layer for running demos and experiments from the command line.
 - Migrate educational experiments into CLI/examples.
-- Continue algorithm-level demos with Grover.
-- Implement Grover's search as a more advanced algorithm-level demo.
 - Add memory usage benchmarks vs. qubit count.
 - Improve documentation and comments across the project.
 - Explore parallelization only after the core API matures.
+- Add Qiskit validation for the Grover search demo.
+- Add a small CLI layer for running demos and experiments from the command line.
+- Migrate educational experiments into CLI.
+- Add memory usage benchmarks vs. qubit count.
+- Explore OpenQASM export for Circuit API programs.
+- Explore parallelization with Rayon after the core API matures.
 
 ## Development Roadmap
 
@@ -116,7 +125,7 @@ Short-term focus:
 
 1. Stabilize the basic Circuit API.
 2. Add CLI support for running examples.
-3. Implement Deutsch – Jozsa as the first full algorithm demo.
-4. Implement Grover search.
+3. Validate algorithm demos against Qiskit references.
+4. Add CLI support for running examples.
 5. Add memory benchmarks.
 6. Revisit parallel in-place execution after the core architecture becomes stable.

@@ -2,12 +2,21 @@ use ndarray::{Array2, ArrayD};
 use num_complex::Complex64;
 
 use crate::constants::{gate_cnot, gate_cz, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z};
+use crate::engine::phase::{apply_diffusion_in_place, apply_phase_on_basis_match};
 use crate::ops::apply_k_qubit_gate_inplace;
 use crate::utils::q0_n;
 
-struct Operation {
-    gate: Array2<Complex64>,
-    targets: Vec<usize>,
+enum Operation {
+    Gate {
+        gate: Array2<Complex64>,
+        targets: Vec<usize>,
+    },
+    PhaseOnBasisMatch {
+        mask: usize,
+        pattern: usize,
+        phase: Complex64,
+    },
+    Diffusion,
 }
 
 pub struct Circuit {
@@ -60,7 +69,7 @@ impl Circuit {
             targets.len()
         );
 
-        self.operations.push(Operation {
+        self.operations.push(Operation::Gate {
             gate,
             targets: targets.to_vec(),
         });
@@ -100,6 +109,44 @@ impl Circuit {
         self.add_gate(gate_t(), &[target])
     }
 
+    pub fn h_all(&mut self) -> &mut Self {
+        for qubit in 0..self.n_qubits {
+            self.h(qubit);
+        }
+
+        self
+    }
+
+    /// Marks a basis state by flipping the sign of its amplitude.
+    /// This is a direct state-vector phase marking operation:
+    /// the amplitude changes sign, while its measurement probability is unchanged.
+    pub fn phase_oracle(&mut self, target_index: usize) -> &mut Self {
+        assert!(
+            target_index < (1usize << self.n_qubits),
+            "Target index {} is out of range for {} qubits",
+            target_index,
+            self.n_qubits
+        );
+
+        let full_mask = (1usize << self.n_qubits) - 1;
+
+        self.operations.push(Operation::PhaseOnBasisMatch {
+            mask: full_mask,
+            pattern: target_index,
+            phase: Complex64::new(-1.0, 0.0),
+        });
+
+        self
+    }
+
+    /// Reflects all amplitudes around their mean.
+    /// This is the diffusion step used in Grover search and amplitude amplification:
+    /// it turns phase marking into increased measurement probability.
+    pub fn diffusion(&mut self) -> &mut Self {
+        self.operations.push(Operation::Diffusion);
+        self
+    }
+
     /// Executes all scheduled gate operations on the initial `|0...0>` state.
     ///
     /// Operations are applied sequentially in the order they were added to the
@@ -108,7 +155,21 @@ impl Circuit {
         let mut state = q0_n(self.n_qubits);
 
         for operation in &self.operations {
-            apply_k_qubit_gate_inplace(&mut state, &operation.gate, &operation.targets);
+            match operation {
+                Operation::Gate { gate, targets } => {
+                    apply_k_qubit_gate_inplace(&mut state, gate, targets);
+                }
+                Operation::PhaseOnBasisMatch {
+                    mask,
+                    pattern,
+                    phase,
+                } => {
+                    apply_phase_on_basis_match(&mut state, self.n_qubits, *mask, *pattern, *phase);
+                }
+                Operation::Diffusion => {
+                    apply_diffusion_in_place(&mut state);
+                }
+            }
         }
 
         state
