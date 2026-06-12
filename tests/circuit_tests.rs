@@ -8,8 +8,8 @@ use quantum_lab::utils::assert_states_close;
 fn test_circuit_bell_state() {
     let mut circuit = Circuit::new(2);
 
-    circuit.h(1);
-    circuit.cnot(1, 0);
+    circuit.h(0);
+    circuit.cnot(0, 1);
 
     let result = circuit.run();
 
