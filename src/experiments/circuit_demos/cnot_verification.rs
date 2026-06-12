@@ -9,7 +9,7 @@ use crate::utils::{run_circuit, to_dirac};
 /// Argument order follows the simulator convention:
 /// `cnot(control, target)`.
 pub fn run() {
-    println!("\n3. CNOT Gate Logic:");
+    println!("\nCNOT Gate Logic:\n");
     let cnot_res_10 = run_circuit(2, |c| {
         c.x(1).cnot(1, 0);
     });

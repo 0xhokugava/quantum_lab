@@ -108,7 +108,7 @@ pub fn run_deutsch(oracle: DeutschOracle) -> DeutschResult {
 }
 
 pub fn run_deutsch_demo() {
-    println!("7. Deutsch algorithm (n = 1 Deutsch-Jozsa)\n");
+    println!("\nDeutsch algorithm (n = 1 Deutsch-Jozsa):\n");
 
     for oracle in ORACLES {
         let result = run_deutsch(oracle);

@@ -3,7 +3,7 @@ use crate::ops::{apply_gate_inplace, tensor_product};
 use crate::utils::{assert_states_close, q0_n, to_dirac};
 
 pub fn run() {
-    println!("\n5. In-place Gate Application Verification");
+    println!("\nIn-place Gate Application Verification:\n");
     let n_qubits = 3;
     let state_initial = q0_n(n_qubits);
     let target_qubit = 1;

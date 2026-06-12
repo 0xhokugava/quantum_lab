@@ -13,7 +13,7 @@ use crate::utils::{approx_eq, run_1q, to_dirac};
 /// The goal is to demonstrate user-facing circuit construction rather than
 /// direct matrix-vector multiplication.
 pub fn run() {
-    println!("1. Single Qubit Operations:");
+    println!("Single Qubit Operations:\n");
 
     let shots = 100_000;
     let state_x = run_1q(|c| {

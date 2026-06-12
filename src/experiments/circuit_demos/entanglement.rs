@@ -3,7 +3,7 @@ use crate::measurement::test_measure;
 use crate::utils::{decode_measurement, to_dirac};
 
 pub fn run() {
-    println!("\n4. Quantum Entanglement (The Bell State):\n");
+    println!("\nQuantum Entanglement (The Bell State):\n");
 
     let n_qubits = 2;
     let shots = 100_000;

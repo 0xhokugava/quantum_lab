@@ -139,7 +139,7 @@ pub fn run_deutsch_jozsa_demo() {
         DeutschJozsaOracle::BalancedParity,
     ];
 
-    println!("8. Deutsch-Jozsa algorithm\n");
+    println!("\nDeutsch-Jozsa algorithm:\n");
 
     for oracle in oracles {
         let result = run_deutsch_jozsa(num_query_qubits, oracle);
@@ -154,6 +154,6 @@ pub fn run_deutsch_jozsa_demo() {
         );
         println!("   Final state:");
         println!("   {}", to_dirac(&result.state));
-        println!();
+        println!()
     }
 }
