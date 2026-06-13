@@ -1,3 +1,4 @@
+use quantum_lab::circuit::Circuit;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -10,6 +11,46 @@ pub enum GateSpec {
     T(usize),
     Cnot { control: usize, target: usize },
     Cz { control: usize, target: usize },
+}
+
+impl GateSpec {
+    pub fn apply(&self, circuit: &mut Circuit) {
+        match self {
+            GateSpec::H(qubit) => circuit.h(*qubit),
+            GateSpec::X(qubit) => circuit.x(*qubit),
+            GateSpec::Y(qubit) => circuit.y(*qubit),
+            GateSpec::Z(qubit) => circuit.z(*qubit),
+            GateSpec::S(qubit) => circuit.s(*qubit),
+            GateSpec::T(qubit) => circuit.t(*qubit),
+            GateSpec::Cnot { control, target } => circuit.cnot(*control, *target),
+            GateSpec::Cz { control, target } => circuit.cz(*control, *target),
+        };
+    }
+    pub fn validate(&self, n_qubits: usize) -> Result<(), String> {
+        if n_qubits == 0 {
+            return Err("Circuit must contain at least one qubit".to_string());
+        }
+        match self {
+            GateSpec::H(qubit)
+            | GateSpec::X(qubit)
+            | GateSpec::Y(qubit)
+            | GateSpec::Z(qubit)
+            | GateSpec::S(qubit)
+            | GateSpec::T(qubit) => {
+                validate_qubit(*qubit, n_qubits)?;
+            }
+            GateSpec::Cnot { control, target } | GateSpec::Cz { control, target } => {
+                validate_qubit(*control, n_qubits)?;
+                validate_qubit(*target, n_qubits)?;
+
+                if control == target {
+                    return Err("Control and target qubits must be different".to_string());
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 impl FromStr for GateSpec {
@@ -65,15 +106,105 @@ fn parse_control_target(operands: &str, gate_name: &str) -> Result<(usize, usize
     Ok((control, target))
 }
 
-#[test]
-fn parses_gate_with_whitespace() {
-    let gate: GateSpec = " cnot : 0, 1 ".parse().unwrap();
+fn validate_qubit(qubit: usize, n_qubits: usize) -> Result<(), String> {
+    if qubit >= n_qubits {
+        return Err(format!(
+            "Qubit index {qubit} is out of range for a {n_qubits}-qubit circuit"
+        ));
+    }
+    Ok(())
+}
 
-    assert_eq!(
-        gate,
+#[cfg(test)]
+mod tests {
+    use super::GateSpec;
+    use quantum_lab::circuit::Circuit;
+
+    #[test]
+    fn parses_gate_with_whitespace() {
+        let gate: GateSpec = " cnot : 0, 1 ".parse().unwrap();
+
+        assert_eq!(
+            gate,
+            GateSpec::Cnot {
+                control: 0,
+                target: 1,
+            }
+        );
+    }
+
+    #[test]
+    fn validates_single_qubit_gate_in_range() {
+        let gate = GateSpec::H(2);
+
+        assert!(gate.validate(3).is_ok());
+    }
+
+    #[test]
+    fn rejects_single_qubit_gate_out_of_range() {
+        let gate = GateSpec::H(3);
+
+        assert!(gate.validate(3).is_err());
+    }
+
+    #[test]
+    fn validates_two_qubit_gate_in_range() {
+        let gate = GateSpec::Cnot {
+            control: 0,
+            target: 2,
+        };
+
+        assert!(gate.validate(3).is_ok());
+    }
+
+    #[test]
+    fn rejects_two_qubit_gate_out_of_range() {
+        let gate = GateSpec::Cnot {
+            control: 0,
+            target: 3,
+        };
+
+        assert!(gate.validate(3).is_err());
+    }
+
+    #[test]
+    fn rejects_equal_control_and_target() {
+        let gate = GateSpec::Cnot {
+            control: 1,
+            target: 1,
+        };
+
+        assert!(gate.validate(3).is_err());
+    }
+
+    #[test]
+    fn rejects_zero_qubit_circuit() {
+        let gate = GateSpec::X(0);
+
+        assert!(gate.validate(0).is_err());
+    }
+
+    #[test]
+    fn applies_x_gate_to_circuit() {
+        let mut circuit = Circuit::new(1);
+        GateSpec::X(0).apply(&mut circuit);
+        let state = circuit.run();
+
+        assert_eq!(state[0].norm_sqr(), 0.0);
+        assert_eq!(state[1].norm_sqr(), 1.0);
+    }
+
+    #[test]
+    fn applies_cnot_gate_to_circuit() {
+        let mut circuit = Circuit::new(2);
+        GateSpec::X(0).apply(&mut circuit);
         GateSpec::Cnot {
             control: 0,
             target: 1,
         }
-    );
+        .apply(&mut circuit);
+
+        let state = circuit.run();
+        assert_eq!(state[3].norm_sqr(), 1.0);
+    }
 }
