@@ -130,7 +130,9 @@ pub fn apply_k_qubit_gate_inplace(
             let mut idx = base;
 
             for (bit_pos, &t) in targets.iter().enumerate() {
-                if (j >> bit_pos) & 1 == 1 {
+                let local_bit = k - 1 - bit_pos;
+
+                if (j >> local_bit) & 1 == 1 {
                     idx |= 1 << t;
                 }
             }

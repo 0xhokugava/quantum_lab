@@ -20,7 +20,7 @@ use crate::utils::{assert_states_close, to_dirac};
 /// This serves as both a correctness check and a physical interpretation
 /// of the CNOT operation within the simulator.
 pub fn run() {
-    println!("\n6. CNOT In-place Verification (with Superposition)");
+    println!("\nCNOT In-place Verification (with Superposition):");
 
     let control = 1;
     let target = 0;

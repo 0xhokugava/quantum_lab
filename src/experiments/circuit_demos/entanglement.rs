@@ -3,13 +3,13 @@ use crate::measurement::test_measure;
 use crate::utils::{decode_measurement, to_dirac};
 
 pub fn run() {
-    println!("\n4. Quantum Entanglement (The Bell State):\n");
+    println!("\nQuantum Entanglement (The Bell State):\n");
 
     let n_qubits = 2;
     let shots = 100_000;
 
     let mut circuit = Circuit::new(n_qubits);
-    circuit.h(1).cnot(1, 0);
+    circuit.h(0).cnot(0, 1);
 
     let bell_state = circuit
         .run()

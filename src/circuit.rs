@@ -82,11 +82,11 @@ impl Circuit {
     }
 
     pub fn cnot(&mut self, control: usize, target: usize) -> &mut Self {
-        self.add_gate(gate_cnot(), &[target, control])
+        self.add_gate(gate_cnot(), &[control, target])
     }
 
     pub fn cz(&mut self, control: usize, target: usize) -> &mut Self {
-        self.add_gate(gate_cz(), &[target, control])
+        self.add_gate(gate_cz(), &[control, target])
     }
 
     pub fn x(&mut self, target: usize) -> &mut Self {

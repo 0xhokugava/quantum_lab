@@ -124,7 +124,7 @@ pub fn build_full_operator(
         let mut local_col = 0;
         for (pos, &t) in targets.iter().enumerate() {
             if (col >> t) & 1 == 1 {
-                local_col |= 1 << pos;
+                local_col |= 1 << (k - 1 - pos);
             }
         }
 
@@ -136,7 +136,7 @@ pub fn build_full_operator(
         for local_row in 0..dim {
             let mut row = base;
             for (pos, &t) in targets.iter().enumerate() {
-                if (local_row >> pos) & 1 == 1 {
+                if (local_row >> (k - 1 - pos)) & 1 == 1 {
                     row |= 1 << t;
                 }
             }

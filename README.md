@@ -1,131 +1,126 @@
 # Quantum Lab
 
-A modular quantum state-vector simulator built from scratch in Rust.
-
-## Goals
-
-The goal of this project is to build a quantum state-vector simulator from scratch in Rust.
-
-The focus is not only on reproducing quantum circuit behavior, but also on understanding the underlying linear algebra, state-vector representation, and performance trade-offs between dense matrix-based execution and matrix-free in-place updates.
-
-The long-term direction is to grow the simulator from a low-level educational implementation into a small usable framework with a Circuit API, CLI examples, benchmarks, and standard algorithm demos.
+Modular quantum state-vector simulator and circuit execution toolkit focuses on matrix-free state-vector execution, circuit correctness, explicit qubit-ordering conventions and a small understandable API for building and running quantum circuits.
 
 ## Features
-- **State Representation**: Dirac (Bra-ket) notation output for multi-qubit state vectors.
-- **Math Engine**: Generic implementation of the Kronecker (tensor) product for vectors and matrices.
-- **Gate Library**: Single-qubit gates (X, Y, Z, H, S, T, I) and two-qubit CNOT gate.
-- **Measurement Engine**: Shot-based measurement simulation for verifying probability distributions.
-- **In-place Execution**: Matrix-free gate application directly on the state vector.
-- **Generic k-qubit Gate Application**: Support for arbitrary local `2^k × 2^k` gates applied in-place.
-- **Circuit API**: High-level abstraction for building and executing quantum circuits declaratively.
-- **Benchmarking**: Criterion-based benchmarks comparing dense matrix-based execution with in-place execution.
-- **Algorithm Demos**: Deutsch, Deutsch-Jozsa, and Grover search demos built on top of the Circuit API.
 
-## Architecture Status
+* Matrix-free in-place state-vector execution
+* Generic local `k`-qubit gate application
+* Single-qubit gates: X, Y, Z, H, S, T, I
+* Two-qubit gates: CNOT and CZ
+* High-level Circuit API
+* Dirac notation output
+* Shot-based measurement simulation
+* Deutsch, Deutsch–Jozsa and Grover search demos
+* Dense matrix baseline for correctness verification
+* Criterion benchmarks
+* Command-line interface for custom circuits, demos and verification
 
-The simulator now has three main abstraction layers:
+## Command-line interface
 
-- **Core Engine**: low-level state-vector operations, tensor products, measurement, and in-place gate application.
-- **Gate Execution Layer**: generic `k`-qubit in-place gate application using local blocks of amplitudes.
-- **Circuit API**: high-level interface for building and running circuits declaratively.
+Install `qlab` binary from the repository root:
 
-Example:
+```bash
+cargo install --path .
+```
 
-``` rust
+Run a custom circuit:
+
+```bash
+qlab run --qubits 2 --gate h:0 --gate cnot:0,1
+```
+
+Output:
+
+```text
+🐈 Quantum Lab 🐈‍⬛
+
+Qubits: 2, Gates: [H(0), Cnot { control: 0, target: 1 }]
+State: (0.707 + 0.000i)|00> + (0.707 + 0.000i)|11>
+```
+
+Supported gate syntax:
+
+```text
+h:0
+x:0
+y:0
+z:0
+s:0
+t:0
+cnot:0,1
+cz:0,1
+```
+
+Show available algorithm demos:
+
+```bash
+qlab demo --help
+```
+
+Show available verification commands:
+
+```bash
+qlab verify --help
+```
+
+During development, run the current source without reinstalling the binary:
+
+```bash
+cargo run --bin qlab -- run --qubits 2 --gate h:0 --gate cnot:0,1
+```
+
+To update an already installed local binary:
+
+```bash
+cargo install --path . --force
+```
+
+## Circuit API
+
+```
 let mut circuit = Circuit::new(2);
 
-circuit.h(1).cnot(0, 1);
+circuit.h(0).cnot(0, 1);
 
 let state = circuit.run();
 ```
 
-## Quick Start
-To run the latest research experiments:
-```bash
-cargo run
+The public convention for controlled gates is:
+
+```text
+cnot(control, target)
+cz(control, target)
 ```
-To run the verification test suite:
+
+Qubit `q0` is the least significant bit and appears as the rightmost bit in printed basis states.
+
+## Development
+
+Run the test suite:
+
 ```bash
 cargo test
 ```
-To run performance benchmarks:
+
+Run benchmarks:
+
 ```bash
 cargo bench
 ```
 
-## 📁 Project Structure
-- `benches/`: Performance benchmarks.
-- `src/algorithms/`: Algorithm-level demos and helpers, including Deutsch, Deutsch-Jozsa and Grover search.
-- `src/engine/`: Matrix-free in-place execution engine for applying gates and phase operations directly to the state vector.
-- `src/circuit.rs`: High-level quantum circuit abstraction.
-- `src/constants.rs`: Quantum gates and basis state definitions.
-- `src/experiments/`: Modular educational and verification experiments.
-    - `circuit_demos/`: User-facing demos built with the Circuit API.
-    - `engine_verification/`: Low-level verification experiments for in-place execution.
-    - `foundations/`: Educational examples for tensor products and basic concepts.
-- `src/lib.rs`: Quantum simulator library.
-- `src/main.rs`: Entry point for running experiments.
-- `src/measurement.rs`: Shot-based measurement simulation.
-- `src/ops.rs`: Core mathematical and state-vector operations.
-- `src/utils.rs`: Formatting, helpers, and state comparison utilities.
-- `tests/`: Integration tests.
-- `validation/`: External validation scripts and notes for comparing simulator behavior against reference frameworks such as Qiskit.
+Format the project:
 
-## Performance & Limitations
+```bash
+cargo fmt
+```
 
-The simulator started with a dense matrix-based approach, where applying a gate required constructing a full `2^n × 2^n` operator. This is useful as a correctness baseline but scales poorly in both time and memory.
+## Documentation
 
-The current implementation supports matrix-free in-place gate application directly on the state vector. This reduces gate application from global matrix construction to local state-vector updates.
+* [Architecture and implementation](docs/ARCHITECTURE.md)
+* [Development roadmap](docs/ROADMAP.md)
+* [External validation](validation)
 
-Benchmarks currently compare:
-- dense matrix-based gate application
-- optimized in-place single-qubit gate application
-- optimized in-place CNOT gate application
+## License
 
-Benchmarks have been run up to 12 qubits to demonstrate the scaling difference without turning the benchmark suite into a CPU stress test.
-
-## Current Progress
-- [x] Universal tensor product implementation
-- [x] Multi-qubit state-vector representation
-- [x] Dirac notation output
-- [x] Single-qubit gates: X, Y, Z, H, S, T, Identity
-- [x] CNOT gate implementation
-- [x] Bell state / entanglement experiment
-- [x] Multi-qubit measurement decoding and statistical analysis
-- [x] Complex number support
-- [x] Matrix-free in-place single-qubit gate application
-- [x] Matrix-free in-place CNOT gate application
-- [x] Generic in-place `k`-qubit gate application
-- [x] Dense full-operator baseline for correctness tests
-- [x] Performance benchmarks for matrix-based vs. in-place execution
-- [x] Initial high-level Circuit API
-- [x] Circuit API wrappers for basic gates
-- [x] Circuit-based Bell state and single-qubit experiments
-- [x] Experiment structure reorganized by abstraction level
-- [x] Deutsch–Jozsa algorithm demo implemented through the Circuit API, including the `n = 1` Deutsch case and multi-query balanced/constant oracle examples.
-- [x] Grover search demo implemented through the Circuit API, including phase oracle, diffusion, recommended Grover step count, and tests for 2-, 3-, and 4-qubit cases.
-
-## Next Steps
-- Finalize the basic Circuit API and keep measurement as a separate layer for now.
-- Add a small CLI layer for running demos and experiments from the command line.
-- Migrate educational experiments into CLI/examples.
-- Add memory usage benchmarks vs. qubit count.
-- Improve documentation and comments across the project.
-- Explore parallelization only after the core API matures.
-- Add Qiskit validation for the Grover search demo.
-- Add a small CLI layer for running demos and experiments from the command line.
-- Migrate educational experiments into CLI.
-- Add memory usage benchmarks vs. qubit count.
-- Explore OpenQASM export for Circuit API programs.
-- Explore parallelization with Rayon after the core API matures.
-
-## Development Roadmap
-
-Short-term focus:
-
-1. Stabilize the basic Circuit API.
-2. Add CLI support for running examples.
-3. Validate algorithm demos against Qiskit references.
-4. Add CLI support for running examples.
-5. Add memory benchmarks.
-6. Revisit parallel in-place execution after the core architecture becomes stable.
+Quantum Lab is licensed under the GNU General Public License v3.0 or later.
