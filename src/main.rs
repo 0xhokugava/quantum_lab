@@ -1,4 +1,5 @@
 mod cli;
+mod gate_spec;
 use clap::Parser;
 use cli::{Cli, Commands, DemoCommand, VerifyCommand};
 use quantum_lab::{algorithms, experiments};

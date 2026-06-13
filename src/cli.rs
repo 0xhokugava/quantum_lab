@@ -1,3 +1,4 @@
+use crate::gate_spec::GateSpec;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -43,6 +44,6 @@ pub enum Commands {
         #[arg(short, long)]
         qubits: usize,
         #[arg(long = "gate", value_name = "GATE")]
-        gates: Vec<String>,
+        gates: Vec<GateSpec>,
     },
 }
