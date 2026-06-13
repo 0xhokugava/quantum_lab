@@ -7,7 +7,7 @@ use quantum_lab::utils::to_dirac;
 use quantum_lab::{algorithms, experiments};
 
 fn main() -> Result<(), String> {
-    println!("=== Quantum Lab ===\n");
+    println!("\n🐈  Quantum Lab 🐈‍⬛\n");
 
     let cli = Cli::parse();
     match cli.command {
