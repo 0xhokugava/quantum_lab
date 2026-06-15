@@ -1,11 +1,12 @@
 use ndarray::linalg::Dot;
-use ndarray::{Array1, Array2};
+use ndarray::{Array1, Array2, ArrayD};
 use num_complex::Complex64;
 use quantum_lab::constants::{
     gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
 };
 use quantum_lab::ops::{
-    apply_cnot_inplace, apply_gate_inplace, apply_k_qubit_gate_inplace, tensor_product,
+    apply_cnot_inplace, apply_controlled_single_qubit_gate_inplace, apply_gate_inplace,
+    apply_k_qubit_gate_inplace, tensor_product,
 };
 use quantum_lab::utils::{assert_states_close, build_full_operator, q0_n, to_c64};
 
@@ -273,4 +274,33 @@ fn test_k_qubit_gate_k3() {
 
     // --- ASSERT ---
     assert_states_close(&state_inplace, &expected);
+}
+
+fn basis_state(n_qubits: usize, index: usize) -> ArrayD<Complex64> {
+    let mut state = Array1::zeros(1usize << n_qubits);
+    state[index] = Complex64::new(1.0, 0.0);
+    state.into_dyn()
+}
+
+#[test]
+fn controlled_x_flips_target_when_control_is_one() {
+    let mut state = basis_state(2, 1);
+    apply_controlled_single_qubit_gate_inplace(&mut state, &gate_x(), &[0], 1);
+    assert_eq!(state[3], Complex64::new(1.0, 0.0));
+}
+
+#[test]
+#[should_panic]
+fn rejects_empty_controls() {
+    let mut state = basis_state(2, 0);
+    apply_controlled_single_qubit_gate_inplace(&mut state, &gate_x(), &[], 1);
+}
+
+#[test]
+fn controlled_x_does_nothing_when_not_all_controls_are_one() {
+    let mut state = basis_state(3, 1);
+    apply_controlled_single_qubit_gate_inplace(&mut state, &gate_x(), &[0, 1], 2);
+
+    assert_eq!(state[1], Complex64::new(1.0, 0.0));
+    assert_eq!(state[5], Complex64::new(0.0, 0.0));
 }
