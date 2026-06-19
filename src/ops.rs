@@ -1,3 +1,4 @@
+use crate::constants::gate_x;
 use ndarray::{Array, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
 use num_complex::Complex64;
 
@@ -64,30 +65,16 @@ pub fn apply_gate_inplace(state: &mut ArrayD<Complex64>, gate: &Array2<Complex64
     }
 }
 
-/// Applies a CNOT (controlled-NOT) gate to a multi-qubit state vector in-place.
+/// Applies a CNOT (controlled-X) gate to a multi-qubit state vector in-place.
 ///
-/// This is a high-performance, matrix-free implementation that avoids
-/// constructing the full 2^n × 2^n operator matrix. Instead, it directly
-/// manipulates the state vector using bitwise operations.
+/// This function is a convenience wrapper around
+/// `apply_controlled_single_qubit_gate_inplace`.
 ///
-/// The algorithm iterates over all basis state indices and identifies pairs
-/// of amplitudes (i, j) that differ only in the target qubit. For indices where
-/// the control qubit is set to 1, the corresponding amplitudes are swapped,
-/// effectively performing a conditional bit-flip on the target qubit.
-///
-/// Each pair is processed exactly once using an ordering condition (i < j)
-/// to avoid redundant swaps.
+/// The Pauli-X gate is applied to `target` only when `control` is in state `1`.
+/// Execution is matrix-free and does not construct a full-system operator.
 pub fn apply_cnot_inplace(state: &mut ArrayD<Complex64>, control: usize, target: usize) {
-    assert_eq!(state.ndim(), 1);
-    let target_mask = 1 << target;
-    for i in 0..state.len() {
-        if ((i >> control) & 1) == 1 {
-            let j = i ^ target_mask;
-            if i < j {
-                state.swap(i, j);
-            }
-        }
-    }
+    let gate = gate_x();
+    apply_controlled_single_qubit_gate_inplace(state, &gate, &[control], target);
 }
 
 /// Applies an arbitrary k-qubit gate to a multi-qubit state vector in-place.
@@ -154,5 +141,59 @@ pub fn apply_k_qubit_gate_inplace(
         for j in 0..dim {
             state[indices[j]] = result[j];
         }
+    }
+}
+
+/// Applies a single-qubit gate conditionally to a target qubit in-place.
+///
+/// The `2 × 2` gate is applied to `target` only for basis-state components
+/// in which every qubit listed in `controls` is set to `1`.
+///
+/// The implementation updates matching amplitude pairs directly and does not
+/// construct a full controlled-gate matrix.
+pub fn apply_controlled_single_qubit_gate_inplace(
+    state: &mut ArrayD<Complex64>,
+    gate: &Array2<Complex64>,
+    controls: &[usize],
+    target: usize,
+) {
+    assert_eq!(state.ndim(), 1);
+    assert_eq!(gate.shape(), &[2, 2]);
+    assert!(!state.is_empty());
+    assert!(state.len().is_power_of_two());
+
+    let n_qubits = state.len().ilog2() as usize;
+    assert!(target < n_qubits);
+    assert!(!controls.is_empty());
+    assert!(!controls.contains(&target));
+
+    let mut control_mask = 0usize;
+    for &control in controls {
+        assert!(control < n_qubits);
+        let control_bit = 1usize << control;
+        assert_eq!(
+            control_mask & control_bit,
+            0,
+            "Duplicate control qubit: {control}"
+        );
+
+        control_mask |= control_bit;
+    }
+    let target_mask = 1usize << target;
+    for i0 in 0..state.len() {
+        if i0 & target_mask != 0 {
+            continue;
+        }
+        if i0 & control_mask != control_mask {
+            continue;
+        }
+
+        let i1 = i0 | target_mask;
+
+        let a = state[i0];
+        let b = state[i1];
+
+        state[i0] = gate[[0, 0]] * a + gate[[0, 1]] * b;
+        state[i1] = gate[[1, 0]] * a + gate[[1, 1]] * b;
     }
 }
