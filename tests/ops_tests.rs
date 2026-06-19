@@ -304,3 +304,20 @@ fn controlled_x_does_nothing_when_not_all_controls_are_one() {
     assert_eq!(state[1], Complex64::new(1.0, 0.0));
     assert_eq!(state[5], Complex64::new(0.0, 0.0));
 }
+
+#[test]
+fn controlled_x_supports_multiple_controls() {
+    let mut state = basis_state(3, 3);
+
+    apply_controlled_single_qubit_gate_inplace(&mut state, &gate_x(), &[0, 1], 2);
+
+    assert_eq!(state[3], Complex64::new(0.0, 0.0));
+    assert_eq!(state[7], Complex64::new(1.0, 0.0));
+}
+
+#[test]
+fn controlled_z_applies_phase_when_controls_are_one_and_target_is_one() {
+    let mut state = basis_state(3, 7);
+    apply_controlled_single_qubit_gate_inplace(&mut state, &gate_z(), &[0, 1], 2);
+    assert_eq!(state[7], Complex64::new(-1.0, 0.0));
+}
