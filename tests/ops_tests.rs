@@ -6,7 +6,7 @@ use quantum_lab::constants::{
 };
 use quantum_lab::ops::{
     apply_cnot_inplace, apply_controlled_single_qubit_gate_inplace, apply_gate_inplace,
-    apply_k_qubit_gate_inplace, tensor_product,
+    apply_k_qubit_gate_inplace, apply_mcx_inplace, apply_mcz_inplace, tensor_product,
 };
 use quantum_lab::utils::{assert_states_close, build_full_operator, q0_n, to_c64};
 
@@ -319,5 +319,21 @@ fn controlled_x_supports_multiple_controls() {
 fn controlled_z_applies_phase_when_controls_are_one_and_target_is_one() {
     let mut state = basis_state(3, 7);
     apply_controlled_single_qubit_gate_inplace(&mut state, &gate_z(), &[0, 1], 2);
+    assert_eq!(state[7], Complex64::new(-1.0, 0.0));
+}
+
+#[test]
+fn mcx_flips_target_when_all_controls_are_one() {
+    let mut state = basis_state(3, 3);
+    apply_mcx_inplace(&mut state, &[0, 1], 2);
+
+    assert_eq!(state[3], Complex64::new(0.0, 0.0));
+    assert_eq!(state[7], Complex64::new(1.0, 0.0));
+}
+
+#[test]
+fn mcz_flips_phase_when_all_controls_are_one_and_target_is_one() {
+    let mut state = basis_state(3, 7);
+    apply_mcz_inplace(&mut state, &[0, 1], 2);
     assert_eq!(state[7], Complex64::new(-1.0, 0.0));
 }

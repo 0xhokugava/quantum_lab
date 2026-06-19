@@ -1,4 +1,4 @@
-use crate::constants::gate_x;
+use crate::constants::{gate_x, gate_z};
 use ndarray::{Array, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
 use num_complex::Complex64;
 
@@ -67,14 +67,37 @@ pub fn apply_gate_inplace(state: &mut ArrayD<Complex64>, gate: &Array2<Complex64
 
 /// Applies a CNOT (controlled-X) gate to a multi-qubit state vector in-place.
 ///
-/// This function is a convenience wrapper around
-/// `apply_controlled_single_qubit_gate_inplace`.
+/// This function is a single-control wrapper around
+/// `apply_mcx_inplace`.
 ///
 /// The Pauli-X gate is applied to `target` only when `control` is in state `1`.
 /// Execution is matrix-free and does not construct a full-system operator.
 pub fn apply_cnot_inplace(state: &mut ArrayD<Complex64>, control: usize, target: usize) {
+    apply_mcx_inplace(state, &[control], target);
+}
+
+/// Applies a multi-controlled X gate to a multi-qubit state vector in-place.
+///
+/// The Pauli-X gate is applied to `target` only when all qubits in `controls`
+/// are in state `1`.
+///
+/// This is a convenience wrapper around
+/// `apply_controlled_single_qubit_gate_inplace`.
+pub fn apply_mcx_inplace(state: &mut ArrayD<Complex64>, controls: &[usize], target: usize) {
     let gate = gate_x();
-    apply_controlled_single_qubit_gate_inplace(state, &gate, &[control], target);
+    apply_controlled_single_qubit_gate_inplace(state, &gate, controls, target);
+}
+
+/// Applies a multi-controlled Z gate to a multi-qubit state vector in-place.
+///
+/// The Pauli-Z gate is applied to `target` only when all qubits in `controls`
+/// are in state `1`.
+///
+/// This is a convenience wrapper around
+/// `apply_controlled_single_qubit_gate_inplace`.
+pub fn apply_mcz_inplace(state: &mut ArrayD<Complex64>, controls: &[usize], target: usize) {
+    let gate = gate_z();
+    apply_controlled_single_qubit_gate_inplace(state, &gate, controls, target);
 }
 
 /// Applies an arbitrary k-qubit gate to a multi-qubit state vector in-place.
