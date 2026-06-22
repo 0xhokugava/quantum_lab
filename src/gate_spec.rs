@@ -11,6 +11,8 @@ pub enum GateSpec {
     T(usize),
     Cnot { control: usize, target: usize },
     Cz { control: usize, target: usize },
+    Mcx { controls: Vec<usize>, target: usize },
+    Mcz { controls: Vec<usize>, target: usize },
 }
 
 impl GateSpec {
@@ -24,6 +26,8 @@ impl GateSpec {
             GateSpec::T(qubit) => circuit.t(*qubit),
             GateSpec::Cnot { control, target } => circuit.cnot(*control, *target),
             GateSpec::Cz { control, target } => circuit.cz(*control, *target),
+            GateSpec::Mcx { controls, target } => circuit.mcx(controls, *target),
+            GateSpec::Mcz { controls, target } => circuit.mcz(controls, *target),
         };
     }
     pub fn validate(&self, n_qubits: usize) -> Result<(), String> {
@@ -45,6 +49,29 @@ impl GateSpec {
 
                 if control == target {
                     return Err("Control and target qubits must be different".to_string());
+                }
+            }
+            GateSpec::Mcx { controls, target } | GateSpec::Mcz { controls, target } => {
+                if controls.is_empty() {
+                    return Err("MCX/MCZ requires at least one control qubit".into());
+                }
+
+                for &control in controls {
+                    validate_qubit(control, n_qubits)?;
+                }
+
+                validate_qubit(*target, n_qubits)?;
+
+                if controls.contains(target) {
+                    return Err("Target qubit cannot also be a control qubit".into());
+                }
+
+                for i in 0..controls.len() {
+                    for j in i + 1..controls.len() {
+                        if controls[i] == controls[j] {
+                            return Err(format!("Duplicate control qubit: {}", controls[i]));
+                        }
+                    }
                 }
             }
         }
@@ -79,6 +106,15 @@ impl FromStr for GateSpec {
                 let (control, target) = parse_control_target(operands, &gate_name)?;
                 Ok(GateSpec::Cz { control, target })
             }
+            "mcx" => {
+                let (controls, target) = parse_controls_target(operands, "mcx")?;
+                Ok(GateSpec::Mcx { controls, target })
+            }
+
+            "mcz" => {
+                let (controls, target) = parse_controls_target(operands, "mcz")?;
+                Ok(GateSpec::Mcz { controls, target })
+            }
             _ => Err(format!("Unknown gate: {gate_name}")),
         }
     }
@@ -104,6 +140,29 @@ fn parse_control_target(operands: &str, gate_name: &str) -> Result<(usize, usize
     }
 
     Ok((control, target))
+}
+
+fn parse_controls_target(operands: &str, gate_name: &str) -> Result<(Vec<usize>, usize), String> {
+    let (controls_part, target_part) = operands
+        .split_once(':')
+        .ok_or_else(|| format!("{gate_name} requires controls:target"))?;
+
+    if controls_part.is_empty() {
+        return Err(format!("{gate_name} requires at least one control"));
+    }
+
+    if target_part.is_empty() {
+        return Err(format!("{gate_name} requires target"));
+    }
+
+    let controls = controls_part
+        .split(',')
+        .map(parse_qubit)
+        .collect::<Result<Vec<_>, _>>()?;
+
+    let target = parse_qubit(target_part)?;
+
+    Ok((controls, target))
 }
 
 fn validate_qubit(qubit: usize, n_qubits: usize) -> Result<(), String> {

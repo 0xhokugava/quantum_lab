@@ -3,13 +3,18 @@ use num_complex::Complex64;
 
 use crate::constants::{gate_cnot, gate_cz, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z};
 use crate::engine::phase::{apply_diffusion_in_place, apply_phase_on_basis_match};
-use crate::ops::apply_k_qubit_gate_inplace;
+use crate::ops::{apply_controlled_single_qubit_gate_inplace, apply_k_qubit_gate_inplace};
 use crate::utils::q0_n;
 
 enum Operation {
     Gate {
         gate: Array2<Complex64>,
         targets: Vec<usize>,
+    },
+    ControlledGate {
+        gate: Array2<Complex64>,
+        controls: Vec<usize>,
+        target: usize,
     },
     PhaseOnBasisMatch {
         mask: usize,
@@ -77,16 +82,23 @@ impl Circuit {
         self
     }
 
+    fn add_controlled_gate(
+        &mut self,
+        gate: Array2<Complex64>,
+        controls: &[usize],
+        target: usize,
+    ) -> &mut Self {
+        self.operations.push(Operation::ControlledGate {
+            gate,
+            controls: controls.to_vec(),
+            target,
+        });
+
+        self
+    }
+
     pub fn h(&mut self, target: usize) -> &mut Self {
         self.add_gate(gate_h(), &[target])
-    }
-
-    pub fn cnot(&mut self, control: usize, target: usize) -> &mut Self {
-        self.add_gate(gate_cnot(), &[control, target])
-    }
-
-    pub fn cz(&mut self, control: usize, target: usize) -> &mut Self {
-        self.add_gate(gate_cz(), &[control, target])
     }
 
     pub fn x(&mut self, target: usize) -> &mut Self {
@@ -115,6 +127,22 @@ impl Circuit {
         }
 
         self
+    }
+
+    pub fn cnot(&mut self, control: usize, target: usize) -> &mut Self {
+        self.add_gate(gate_cnot(), &[control, target])
+    }
+
+    pub fn cz(&mut self, control: usize, target: usize) -> &mut Self {
+        self.add_gate(gate_cz(), &[control, target])
+    }
+
+    pub fn mcx(&mut self, controls: &[usize], target: usize) -> &mut Self {
+        self.add_controlled_gate(gate_x(), controls, target)
+    }
+
+    pub fn mcz(&mut self, controls: &[usize], target: usize) -> &mut Self {
+        self.add_controlled_gate(gate_z(), controls, target)
     }
 
     /// Marks a basis state by flipping the sign of its amplitude.
@@ -158,6 +186,13 @@ impl Circuit {
             match operation {
                 Operation::Gate { gate, targets } => {
                     apply_k_qubit_gate_inplace(&mut state, gate, targets);
+                }
+                Operation::ControlledGate {
+                    gate,
+                    controls,
+                    target,
+                } => {
+                    apply_controlled_single_qubit_gate_inplace(&mut state, gate, controls, *target);
                 }
                 Operation::PhaseOnBasisMatch {
                     mask,
