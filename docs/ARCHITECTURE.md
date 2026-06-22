@@ -25,9 +25,7 @@ Circuit API stores quantum operations in execution order and dispatches them to 
 
 ```
 let mut circuit = Circuit::new(2);
-
 circuit.h(0).cnot(0, 1);
-
 let state = circuit.run();
 ```
 
@@ -73,6 +71,8 @@ Controlled gates use:
 ```text
 cnot(control, target)
 cz(control, target)
+mcx(controls, target)
+mcz(controls, target)
 ```
 
 For generic local gates:

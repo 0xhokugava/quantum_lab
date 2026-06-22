@@ -18,16 +18,10 @@
 * [x] Criterion benchmarks
 * [x] `qlab` command-line interface
 * [x] Custom circuit execution through CLI
+* [x] MCX and MCZ gates through Circuit API
+* [x] MCX and MCZ gate syntax through CLI
 
 ## Current Focus
-
-### Controlled Gate Primitives
-
-* [ ] generic controlled single-qubit gate
-* [ ] multi-controlled X
-* [ ] multi-controlled Z
-* [ ] validation for duplicate controls and invalid targets
-* [ ] dense-vs-matrix-free correctness tests
 
 ### Gate-Level Grover
 

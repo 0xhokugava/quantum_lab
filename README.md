@@ -8,6 +8,7 @@ Modular quantum state-vector simulator and circuit execution toolkit focuses on 
 * Generic local `k`-qubit gate application
 * Single-qubit gates: X, Y, Z, H, S, T, I
 * Two-qubit gates: CNOT and CZ
+* Multi-controlled gates: MCX and MCZ
 * High-level Circuit API
 * Dirac notation output
 * Shot-based measurement simulation
@@ -50,6 +51,15 @@ s:0
 t:0
 cnot:0,1
 cz:0,1
+mcx:0,1:2
+mcz:0,1:2
+```
+
+For multi-controlled gates, the syntax is:
+
+```text
+mcx:controls:target
+mcz:controls:target
 ```
 
 Show available algorithm demos:
@@ -80,9 +90,7 @@ cargo install --path . --force
 
 ```
 let mut circuit = Circuit::new(2);
-
 circuit.h(0).cnot(0, 1);
-
 let state = circuit.run();
 ```
 
@@ -91,6 +99,8 @@ The public convention for controlled gates is:
 ```text
 cnot(control, target)
 cz(control, target)
+mcx(controls, target)
+mcz(controls, target)
 ```
 
 Qubit `q0` is the least significant bit and appears as the rightmost bit in printed basis states.

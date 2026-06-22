@@ -59,3 +59,19 @@ fn test_cz_superposition() {
     let mut circuit = Circuit::new(2);
     circuit.h(0).h(1).cz(0, 1).run();
 }
+
+#[test]
+fn mcx_applies_when_controls_are_one() {
+    let mut circuit = Circuit::new(3);
+    circuit.x(0).x(1).mcx(&[0, 1], 2);
+    let state = circuit.run();
+    assert_eq!(state[7], Complex64::new(1.0, 0.0));
+}
+
+#[test]
+fn mcz_applies_phase_when_controls_are_one() {
+    let mut circuit = Circuit::new(3);
+    circuit.x(0).x(1).x(2).mcz(&[0, 1], 2);
+    let state = circuit.run();
+    assert_eq!(state[7], Complex64::new(-1.0, 0.0));
+}
