@@ -2,7 +2,6 @@ use ndarray::{Array2, ArrayD};
 use num_complex::Complex64;
 
 use crate::constants::{gate_cnot, gate_cz, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z};
-use crate::engine::phase::{apply_diffusion_in_place, apply_phase_on_basis_match};
 use crate::ops::{apply_controlled_single_qubit_gate_inplace, apply_k_qubit_gate_inplace};
 use crate::utils::q0_n;
 
@@ -16,12 +15,6 @@ enum Operation {
         controls: Vec<usize>,
         target: usize,
     },
-    PhaseOnBasisMatch {
-        mask: usize,
-        pattern: usize,
-        phase: Complex64,
-    },
-    Diffusion,
 }
 
 pub struct Circuit {
@@ -97,6 +90,18 @@ impl Circuit {
         self
     }
 
+    fn phase_flip_all_ones(&mut self) -> &mut Self {
+        if self.n_qubits == 1 {
+            self.z(0);
+            return self;
+        }
+
+        let target = self.n_qubits - 1;
+        let controls: Vec<usize> = (0..target).collect();
+
+        self.mcz(&controls, target)
+    }
+
     pub fn h(&mut self, target: usize) -> &mut Self {
         self.add_gate(gate_h(), &[target])
     }
@@ -156,13 +161,19 @@ impl Circuit {
             self.n_qubits
         );
 
-        let full_mask = (1usize << self.n_qubits) - 1;
+        for qubit in 0..self.n_qubits {
+            if ((target_index >> qubit) & 1) == 0 {
+                self.x(qubit);
+            }
+        }
 
-        self.operations.push(Operation::PhaseOnBasisMatch {
-            mask: full_mask,
-            pattern: target_index,
-            phase: Complex64::new(-1.0, 0.0),
-        });
+        self.phase_flip_all_ones();
+
+        for qubit in 0..self.n_qubits {
+            if ((target_index >> qubit) & 1) == 0 {
+                self.x(qubit);
+            }
+        }
 
         self
     }
@@ -171,7 +182,18 @@ impl Circuit {
     /// This is the diffusion step used in Grover search and amplitude amplification:
     /// it turns phase marking into increased measurement probability.
     pub fn diffusion(&mut self) -> &mut Self {
-        self.operations.push(Operation::Diffusion);
+        self.h_all();
+        for qubit in 0..self.n_qubits {
+            self.x(qubit);
+        }
+
+        self.phase_flip_all_ones();
+        for qubit in 0..self.n_qubits {
+            self.x(qubit);
+        }
+
+        self.h_all();
+
         self
     }
 
@@ -193,16 +215,6 @@ impl Circuit {
                     target,
                 } => {
                     apply_controlled_single_qubit_gate_inplace(&mut state, gate, controls, *target);
-                }
-                Operation::PhaseOnBasisMatch {
-                    mask,
-                    pattern,
-                    phase,
-                } => {
-                    apply_phase_on_basis_match(&mut state, self.n_qubits, *mask, *pattern, *phase);
-                }
-                Operation::Diffusion => {
-                    apply_diffusion_in_place(&mut state);
                 }
             }
         }

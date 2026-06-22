@@ -63,9 +63,7 @@ pub fn run_grover_demo() {
     let target_index = 5;
     let grover = run_grover(num_qubits, target_index);
 
-    println!("\nGrover search algorithm:\n");
-
-    // println!("   Final state: {}", to_dirac(&grover.final_state));
+    println!("Grover search algorithm:\n");
     println!(
         "   Target state: {} index={}",
         format_basis(grover.target_index, num_qubits),
