@@ -87,8 +87,12 @@ def main() -> None:
         ("balanced parity", "balanced", balanced_parity(n)),
     ]
 
+    print("Qiskit Deutsch-Jozsa validation")
+    print()
     for label, expected, oracle in cases:
         run_case(label, expected, n, oracle)
+
+    print("Validation passed.")
 
 
 if __name__ == "__main__":

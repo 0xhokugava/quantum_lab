@@ -20,15 +20,18 @@
 * [x] Custom circuit execution through CLI
 * [x] MCX and MCZ gates through Circuit API
 * [x] MCX and MCZ gate syntax through CLI
+* [x] Gate-level Grover oracle built from primitive gates
+* [x] Gate-level Grover diffusion built from primitive gates
+* [x] Preserved existing Grover result after gate-level decomposition
+* [x] Qiskit validation for gate-level Grover
 
 ## Current Focus
 
-### Gate-Level Grover
+### Source Module Layout
 
-* [ ] build the oracle from primitive gates
-* [ ] build diffusion from primitive gates
-* [ ] preserve current Grover results
-* [ ] validate the final circuit against Qiskit
+* [ ] refactor source files into clearer modules
+* [ ] preserve current behavior
+* [ ] keep all tests passing
 
 ## Next
 
