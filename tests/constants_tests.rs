@@ -1,6 +1,6 @@
 use ndarray::{Array2, array};
 use num_complex::Complex64;
-use quantum_lab::constants::{
+use quantum_lab::engine::constants::{
     gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
 };
 

@@ -1,6 +1,6 @@
-use crate::circuit::Circuit;
-use crate::measurement::test_measure;
-use crate::utils::{decode_measurement, to_dirac};
+use crate::circuit::core::Circuit;
+use crate::engine::measurement::test_measure;
+use crate::engine::utils::{decode_measurement, to_dirac};
 
 pub fn run() {
     println!("\nQuantum Entanglement (The Bell State):\n");

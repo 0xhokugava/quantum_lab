@@ -1,4 +1,4 @@
-use crate::utils::{run_circuit, to_dirac};
+use crate::engine::utils::{run_circuit, to_dirac};
 
 /// Runs a CNOT gate logic demonstration using the high-level `Circuit` API.
 ///

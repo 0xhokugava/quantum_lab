@@ -1,9 +1,11 @@
 use ndarray::{Array2, ArrayD};
 use num_complex::Complex64;
 
-use crate::constants::{gate_cnot, gate_cz, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z};
-use crate::ops::{apply_controlled_single_qubit_gate_inplace, apply_k_qubit_gate_inplace};
-use crate::utils::q0_n;
+use crate::engine::constants::{
+    gate_cnot, gate_cz, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z,
+};
+use crate::engine::ops::{apply_controlled_single_qubit_gate_inplace, apply_k_qubit_gate_inplace};
+use crate::engine::utils::q0_n;
 
 enum Operation {
     Gate {

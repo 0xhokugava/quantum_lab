@@ -1,6 +1,6 @@
-use crate::constants::{q0, q1};
-use crate::ops::tensor_product;
-use crate::utils::to_dirac;
+use crate::engine::constants::{q0, q1};
+use crate::engine::ops::tensor_product;
+use crate::engine::utils::to_dirac;
 
 pub fn run() {
     println!("Multi-Qubit Systems (Tensor Product):\n");

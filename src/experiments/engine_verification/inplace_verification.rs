@@ -1,6 +1,6 @@
-use crate::constants::{gate_h, identity};
-use crate::ops::{apply_gate_inplace, tensor_product};
-use crate::utils::{assert_states_close, q0_n, to_dirac};
+use crate::engine::constants::{gate_h, identity};
+use crate::engine::ops::{apply_gate_inplace, tensor_product};
+use crate::engine::utils::{assert_states_close, q0_n, to_dirac};
 
 pub fn run() {
     println!("\nIn-place Gate Application Verification:\n");

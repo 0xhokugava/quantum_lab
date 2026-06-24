@@ -1,5 +1,5 @@
-use crate::measurement::test_measure;
-use crate::utils::{approx_eq, run_1q, to_dirac};
+use crate::engine::measurement::test_measure;
+use crate::engine::utils::{approx_eq, run_1q, to_dirac};
 
 /// Runs a single-qubit gate demonstration using the high-level `Circuit` API.
 ///
