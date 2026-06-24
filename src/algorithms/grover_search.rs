@@ -1,4 +1,4 @@
-use crate::circuit::Circuit;
+use crate::circuit::core::Circuit;
 use ndarray::ArrayD;
 use num_complex::Complex64;
 use std::f64::consts::PI;

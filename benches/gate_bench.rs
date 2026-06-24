@@ -1,7 +1,7 @@
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
-use quantum_lab::constants::{gate_h, identity};
-use quantum_lab::ops::{apply_gate_inplace, tensor_product};
-use quantum_lab::utils::q0_n;
+use quantum_lab::engine::constants::{gate_h, identity};
+use quantum_lab::engine::ops::{apply_gate_inplace, tensor_product};
+use quantum_lab::engine::utils::q0_n;
 use std::hint::black_box;
 
 fn bench_single_gate(c: &mut Criterion) {

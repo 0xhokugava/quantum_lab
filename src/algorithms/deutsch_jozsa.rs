@@ -1,8 +1,8 @@
 use crate::algorithms::deutsch_helpers::{
     ANSWER, classify_deutsch_jozsa_result, query_register_zero_probability,
 };
-use crate::circuit::Circuit;
-use crate::utils::to_dirac;
+use crate::circuit::core::Circuit;
+use crate::engine::utils::to_dirac;
 use ndarray::ArrayD;
 use num_complex::Complex64;
 use std::ops::RangeInclusive;

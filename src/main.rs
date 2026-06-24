@@ -1,9 +1,7 @@
-mod cli;
-mod gate_spec;
 use clap::Parser;
-use cli::{Cli, Commands, DemoCommand, VerifyCommand};
-use quantum_lab::circuit::Circuit;
-use quantum_lab::utils::to_dirac;
+use quantum_lab::circuit::core::Circuit;
+use quantum_lab::cli::{Cli, Commands, DemoCommand, VerifyCommand};
+use quantum_lab::engine::utils::to_dirac;
 use quantum_lab::{algorithms, experiments};
 
 fn main() -> Result<(), String> {

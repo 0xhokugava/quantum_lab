@@ -1,4 +1,4 @@
-use quantum_lab::circuit::Circuit;
+use crate::circuit::core::Circuit;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -177,7 +177,7 @@ fn validate_qubit(qubit: usize, n_qubits: usize) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::GateSpec;
-    use quantum_lab::circuit::Circuit;
+    use crate::circuit::core::Circuit;
 
     #[test]
     fn parses_gate_with_whitespace() {

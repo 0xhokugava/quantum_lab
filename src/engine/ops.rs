@@ -1,4 +1,4 @@
-use crate::constants::{gate_x, gate_z};
+use crate::engine::constants::{gate_x, gate_z};
 use ndarray::{Array, Array2, ArrayD, Dimension, IntoDimension, IxDyn};
 use num_complex::Complex64;
 

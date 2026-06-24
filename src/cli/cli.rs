@@ -1,11 +1,11 @@
-use crate::gate_spec::GateSpec;
+use super::gate_spec::GateSpec;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
-    pub(crate) command: Commands,
+    pub command: Commands,
 }
 
 #[derive(Subcommand)]

@@ -1,4 +1,4 @@
-use crate::circuit::Circuit;
+use crate::circuit::core::Circuit;
 use ndarray::{Array, Array1, Array2, ArrayD, Dimension};
 use num_complex::Complex64;
 

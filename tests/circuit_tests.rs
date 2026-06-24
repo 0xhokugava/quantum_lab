@@ -1,8 +1,8 @@
 use ndarray::ArrayD;
 use num_complex::Complex64;
-use quantum_lab::circuit::Circuit;
-use quantum_lab::constants::{q0, q1};
-use quantum_lab::utils::assert_states_close;
+use quantum_lab::circuit::core::Circuit;
+use quantum_lab::engine::constants::{q0, q1};
+use quantum_lab::engine::utils::assert_states_close;
 
 #[test]
 fn test_circuit_bell_state() {

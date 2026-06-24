@@ -1,6 +1,6 @@
-use crate::constants::{gate_cnot, gate_h, q0, q1};
-use crate::ops::{apply_cnot_inplace, tensor_product};
-use crate::utils::{assert_states_close, to_dirac};
+use crate::engine::constants::{gate_cnot, gate_h, q0, q1};
+use crate::engine::ops::{apply_cnot_inplace, tensor_product};
+use crate::engine::utils::{assert_states_close, to_dirac};
 
 /// Runs a verification experiment for the in-place CNOT implementation.
 ///

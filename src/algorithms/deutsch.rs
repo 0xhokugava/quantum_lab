@@ -1,6 +1,6 @@
 use super::deutsch_helpers::{ANSWER, QUERY, classify_deutsch_result, query_probability};
-use crate::circuit::Circuit;
-use crate::utils::to_dirac;
+use crate::circuit::core::Circuit;
+use crate::engine::utils::to_dirac;
 use ndarray::ArrayD;
 use num_complex::Complex64;
 

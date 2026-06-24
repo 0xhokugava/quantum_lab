@@ -1,7 +1,7 @@
 use ndarray::array;
 use num_complex::Complex64;
-use quantum_lab::constants::{q0, q1};
-use quantum_lab::measurement::{measure, test_measure};
+use quantum_lab::engine::constants::{q0, q1};
+use quantum_lab::engine::measurement::{measure, test_measure};
 use std::f64::consts::FRAC_1_SQRT_2;
 
 fn to_c64(re: f64) -> Complex64 {
