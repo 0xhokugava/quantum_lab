@@ -1,27 +1,30 @@
-use ndarray::{Array2, ArrayD};
-use num_complex::Complex64;
-
+use crate::circuit::operation::{GateKind, Operation};
 use crate::engine::constants::{
     gate_cnot, gate_cz, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z,
 };
 use crate::engine::ops::{apply_controlled_single_qubit_gate_inplace, apply_k_qubit_gate_inplace};
 use crate::engine::utils::q0_n;
-
-enum Operation {
-    Gate {
-        gate: Array2<Complex64>,
-        targets: Vec<usize>,
-    },
-    ControlledGate {
-        gate: Array2<Complex64>,
-        controls: Vec<usize>,
-        target: usize,
-    },
-}
+use ndarray::{Array2, ArrayD};
+use num_complex::Complex64;
 
 pub struct Circuit {
     n_qubits: usize,
     operations: Vec<Operation>,
+}
+
+/// Maps a semantic single-qubit gate kind to its matrix representation.
+///
+/// Matrix construction is kept at the execution boundary so that the circuit
+/// itself preserves gate identity for export and inspection.
+fn matrix_for_gate(gate: GateKind) -> Array2<Complex64> {
+    match gate {
+        GateKind::X => gate_x(),
+        GateKind::Y => gate_y(),
+        GateKind::Z => gate_z(),
+        GateKind::H => gate_h(),
+        GateKind::S => gate_s(),
+        GateKind::T => gate_t(),
+    }
 }
 
 impl Circuit {
@@ -33,65 +36,29 @@ impl Circuit {
         }
     }
 
-    /// Adds a gate operation to the circuit without executing it immediately.
+    /// Schedules a single-qubit gate without executing it immediately.
     ///
-    /// The gate is stored together with its target qubits and will be applied later
-    /// when `run()` is called. The gate matrix must have the shape `2^k × 2^k`,
-    /// where `k = targets.len()`.
-    pub fn add_gate(&mut self, gate: Array2<Complex64>, targets: &[usize]) -> &mut Self {
-        assert!(!targets.is_empty(), "Gate must target at least one qubit");
-        for &target in targets {
-            assert!(
-                target < self.n_qubits,
-                "Target qubit {} is out of range for {}-qubit circuit",
-                target,
-                self.n_qubits
-            );
-        }
-
-        for i in 0..targets.len() {
-            for j in (i + 1)..targets.len() {
-                assert_ne!(
-                    targets[i], targets[j],
-                    "Duplicate target qubit {}",
-                    targets[i]
-                );
-            }
-        }
-
-        let dim = 1 << targets.len();
-        assert_eq!(
-            gate.shape(),
-            &[dim, dim],
-            "Gate shape must be {}x{} for {} target qubits",
-            dim,
-            dim,
-            targets.len()
+    /// The operation is stored semantically as `(gate kind, target)`.
+    /// Matrix application happens later in `run()`.
+    fn add_single_qubit_gate(&mut self, gate: GateKind, target: usize) -> &mut Self {
+        assert!(
+            target < self.n_qubits,
+            "Target qubit {} is out of range for {}-qubit circuit",
+            target,
+            self.n_qubits
         );
 
-        self.operations.push(Operation::Gate {
-            gate,
-            targets: targets.to_vec(),
-        });
+        self.operations
+            .push(Operation::SingleQubit { gate, target });
 
         self
     }
 
-    fn add_controlled_gate(
-        &mut self,
-        gate: Array2<Complex64>,
-        controls: &[usize],
-        target: usize,
-    ) -> &mut Self {
-        self.operations.push(Operation::ControlledGate {
-            gate,
-            controls: controls.to_vec(),
-            target,
-        });
-
-        self
-    }
-
+    /// Applies a phase flip to the all-one's basis state.
+    ///
+    /// For one qubit this is just `Z`.
+    /// For multiple qubits this is implemented as an MCZ with the highest-index
+    /// qubit as a target and all lower-index qubits as controls.
     fn phase_flip_all_ones(&mut self) -> &mut Self {
         if self.n_qubits == 1 {
             self.z(0);
@@ -104,28 +71,99 @@ impl Circuit {
         self.mcz(&controls, target)
     }
 
+    fn validate_control_target(&self, control: usize, target: usize) {
+        assert!(
+            control < self.n_qubits,
+            "Control qubit {} is out of range for {}-qubit circuit",
+            control,
+            self.n_qubits
+        );
+
+        assert!(
+            target < self.n_qubits,
+            "Target qubit {} is out of range for {}-qubit circuit",
+            target,
+            self.n_qubits
+        );
+
+        assert_ne!(
+            control, target,
+            "Control and target qubits must be different"
+        );
+    }
+
+    fn validate_controls_target(&self, controls: &[usize], target: usize) {
+        assert!(
+            !controls.is_empty(),
+            "Controlled gate must have at least one control"
+        );
+
+        assert!(
+            target < self.n_qubits,
+            "Target qubit {} is out of range for {}-qubit circuit",
+            target,
+            self.n_qubits
+        );
+
+        for &control in controls {
+            assert!(
+                control < self.n_qubits,
+                "Control qubit {} is out of range for {}-qubit circuit",
+                control,
+                self.n_qubits
+            );
+
+            assert_ne!(
+                control, target,
+                "Target qubit cannot also be a control qubit"
+            );
+        }
+
+        for i in 0..controls.len() {
+            for j in (i + 1)..controls.len() {
+                assert_ne!(
+                    controls[i], controls[j],
+                    "Duplicate control qubit {}",
+                    controls[i]
+                );
+            }
+        }
+    }
+
+    /// Returns the number of qubits in the circuit.
+    pub fn n_qubits(&self) -> usize {
+        self.n_qubits
+    }
+
+    /// Returns the scheduled semantic operations.
+    ///
+    /// This is intended for inspection and export layers.
+    pub fn operations(&self) -> &[Operation] {
+        &self.operations
+    }
+
     pub fn h(&mut self, target: usize) -> &mut Self {
-        self.add_gate(gate_h(), &[target])
+        self.add_single_qubit_gate(GateKind::H, target)
     }
 
     pub fn x(&mut self, target: usize) -> &mut Self {
-        self.add_gate(gate_x(), &[target])
+        self.add_single_qubit_gate(GateKind::X, target)
     }
 
     pub fn y(&mut self, target: usize) -> &mut Self {
-        self.add_gate(gate_y(), &[target])
+        self.add_single_qubit_gate(GateKind::Y, target)
     }
 
     pub fn z(&mut self, target: usize) -> &mut Self {
-        self.add_gate(gate_z(), &[target])
+        self.add_single_qubit_gate(GateKind::Z, target)
     }
 
     pub fn s(&mut self, target: usize) -> &mut Self {
-        self.add_gate(gate_s(), &[target])
+        self.add_single_qubit_gate(GateKind::S, target)
     }
 
     pub fn t(&mut self, target: usize) -> &mut Self {
-        self.add_gate(gate_t(), &[target])
+        self.add_single_qubit_gate(GateKind::T, target)
     }
 
     pub fn h_all(&mut self) -> &mut Self {
@@ -137,24 +175,43 @@ impl Circuit {
     }
 
     pub fn cnot(&mut self, control: usize, target: usize) -> &mut Self {
-        self.add_gate(gate_cnot(), &[control, target])
+        self.validate_control_target(control, target);
+        self.operations.push(Operation::Cnot { control, target });
+        self
     }
 
     pub fn cz(&mut self, control: usize, target: usize) -> &mut Self {
-        self.add_gate(gate_cz(), &[control, target])
+        self.validate_control_target(control, target);
+        self.operations.push(Operation::Cz { control, target });
+        self
     }
 
     pub fn mcx(&mut self, controls: &[usize], target: usize) -> &mut Self {
-        self.add_controlled_gate(gate_x(), controls, target)
+        self.validate_controls_target(controls, target);
+        self.operations.push(Operation::Mcx {
+            controls: controls.to_vec(),
+            target,
+        });
+        self
     }
 
     pub fn mcz(&mut self, controls: &[usize], target: usize) -> &mut Self {
-        self.add_controlled_gate(gate_z(), controls, target)
+        self.validate_controls_target(controls, target);
+        self.operations.push(Operation::Mcz {
+            controls: controls.to_vec(),
+            target,
+        });
+        self
     }
 
-    /// Marks a basis state by flipping the sign of its amplitude.
-    /// This is a direct state-vector phase marking operation:
-    /// the amplitude changes sign, while its measurement probability is unchanged.
+    /// Builds a gate-level phase oracle for the selected basis state.
+    ///
+    /// The target state is mapped to the all-one's state using X gates,
+    /// then `phase_flip_all_ones()` applies the sign flip, and the X gates
+    /// are undone afterward.
+    ///
+    /// Qubit indexing follows the simulator convention: qubit 0 is the
+    /// least significant bit of `target_index`.
     pub fn phase_oracle(&mut self, target_index: usize) -> &mut Self {
         assert!(
             target_index < (1usize << self.n_qubits),
@@ -180,9 +237,10 @@ impl Circuit {
         self
     }
 
-    /// Reflects all amplitudes around their mean.
-    /// This is the diffusion step used in Grover search and amplitude amplification:
-    /// it turns phase marking into increased measurement probability.
+    /// Builds the Grover diffusion operator at gate level.
+    ///
+    /// The implementation follows the standard H / X / phase-flip / X / H
+    /// construction and schedules all operations through the Circuit API.
     pub fn diffusion(&mut self) -> &mut Self {
         self.h_all();
         for qubit in 0..self.n_qubits {
@@ -199,24 +257,43 @@ impl Circuit {
         self
     }
 
-    /// Executes all scheduled gate operations on the initial `|0...0>` state.
+    /// Executes all scheduled operations on the initial `|0...0>` state.
     ///
-    /// Operations are applied sequentially in the order they were added to the
-    /// circuit. The execution uses the generic in-place k-qubit gate engine.
+    /// The circuit stores semantic operations. During execution each operation
+    /// is mapped to the corresponding matrix or controlled-gate engine call.
+    /// Operations are applied sequentially in insertion order.
     pub fn run(&self) -> ArrayD<Complex64> {
         let mut state = q0_n(self.n_qubits);
 
         for operation in &self.operations {
             match operation {
-                Operation::Gate { gate, targets } => {
-                    apply_k_qubit_gate_inplace(&mut state, gate, targets);
+                Operation::SingleQubit { gate, target } => {
+                    let matrix = matrix_for_gate(*gate);
+                    apply_k_qubit_gate_inplace(&mut state, &matrix, &[*target]);
                 }
-                Operation::ControlledGate {
-                    gate,
-                    controls,
-                    target,
-                } => {
-                    apply_controlled_single_qubit_gate_inplace(&mut state, gate, controls, *target);
+
+                Operation::Cnot { control, target } => {
+                    let matrix = gate_cnot();
+                    apply_k_qubit_gate_inplace(&mut state, &matrix, &[*control, *target]);
+                }
+
+                Operation::Cz { control, target } => {
+                    let matrix = gate_cz();
+                    apply_k_qubit_gate_inplace(&mut state, &matrix, &[*control, *target]);
+                }
+
+                Operation::Mcx { controls, target } => {
+                    let matrix = gate_x();
+                    apply_controlled_single_qubit_gate_inplace(
+                        &mut state, &matrix, controls, *target,
+                    );
+                }
+
+                Operation::Mcz { controls, target } => {
+                    let matrix = gate_z();
+                    apply_controlled_single_qubit_gate_inplace(
+                        &mut state, &matrix, controls, *target,
+                    );
                 }
             }
         }
