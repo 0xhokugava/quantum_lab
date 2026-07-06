@@ -46,4 +46,13 @@ pub enum Commands {
         #[arg(long = "gate", value_name = "GATE")]
         gates: Vec<GateSpec>,
     },
+    /// Export a quantum circuit to OpenQASM 2.0
+    #[command(name = "export-openqasm")]
+    ExportOpenqasm {
+        #[arg(short, long)]
+        qubits: usize,
+
+        #[arg(long = "gate", value_name = "GATE")]
+        gates: Vec<GateSpec>,
+    },
 }

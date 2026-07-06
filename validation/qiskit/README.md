@@ -64,3 +64,47 @@ Dirac output is printed in standard binary order, so qubit `0` appears as the ri
 ```bash
 python3 validation/qiskit/deutsch_jozsa.py
 python3 validation/qiskit/grover.py
+```
+
+## OpenQASM 2.0 export validation
+
+Quantum Lab can export a circuit to OpenQASM 2.0 and validate the exported file with Qiskit.
+
+Generate a Bell circuit as OpenQASM:
+
+```bash
+mkdir -p tmp
+cargo run --quiet -- export-openqasm --qubits 2 --gate h:0 --gate cnot:0,1 > tmp/bell.qasm
+```
+
+Validate the exported circuit with Qiskit:
+
+```bash
+python3 validation/qiskit/openqasm_export.py tmp/bell.qasm
+```
+
+## Supported OpenQASM 2.0 export subset
+
+The current exporter supports:
+
+* `x`
+* `y`
+* `z`
+* `h`
+* `s`
+* `t`
+* `cx`
+* `cz`
+
+## Not supported yet
+
+The current OpenQASM exporter does not support:
+
+* measurement / classical registers
+* `mcx`
+* `mcz`
+* custom gates
+* OpenQASM import
+* OpenQASM 3.0
+
+Unsupported operations return an explicit export error instead of generating invalid OpenQASM.
