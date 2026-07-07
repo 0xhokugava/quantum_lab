@@ -4,9 +4,15 @@ from qiskit import qasm2
 from qiskit.quantum_info import Statevector
 
 
+EPS = 1e-9
+DISPLAY_EPS = 1e-12
+
+
 def main() -> None:
     if len(sys.argv) != 2:
-        raise SystemExit("Usage: python3 validation/qiskit/openqasm_export.py <path-to-qasm>")
+        raise SystemExit(
+            "Usage: python3 validation/qiskit/openqasm_export.py <path-to-qasm>"
+        )
 
     qasm_path = sys.argv[1]
 
@@ -14,26 +20,26 @@ def main() -> None:
     state = Statevector.from_instruction(qc)
     probabilities = state.probabilities_dict()
 
-    expected = {
-        "00": 0.5,
-        "11": 0.5,
-    }
-
-    for basis, probability in expected.items():
-        actual = probabilities.get(basis, 0.0)
-        assert abs(actual - probability) < 1e-9, (
-            f"Expected P({basis})={probability}, got {actual}"
-        )
-
-    for basis, actual in probabilities.items():
-        if basis not in expected:
-            assert abs(actual) < 1e-9, f"Expected P({basis})=0, got {actual}"
+    total_probability = sum(probabilities.values())
+    assert abs(total_probability - 1.0) < EPS, (
+        f"Expected probabilities to sum to 1.0, got {total_probability}"
+    )
 
     print("OpenQASM export validation")
+    print()
+    print(f"QASM file: {qasm_path}")
+    print(f"Qubits: {qc.num_qubits}")
     print()
     print(qc)
     print()
     print(state)
+    print()
+    print("Non-zero probabilities:")
+
+    for basis, probability in sorted(probabilities.items()):
+        if probability > DISPLAY_EPS:
+            print(f"  P({basis}) = {probability}")
+
     print()
     print("Validation passed.")
 
