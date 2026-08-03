@@ -3,14 +3,12 @@ use num_complex::Complex64;
 use quantum_lab::circuit::core::Circuit;
 use quantum_lab::engine::constants::{q0, q1};
 use quantum_lab::engine::utils::assert_states_close;
+use quantum_lab::examples::catalog;
+use quantum_lab::examples::catalog::BellState;
 
 #[test]
 fn test_circuit_bell_state() {
-    let mut circuit = Circuit::new(2);
-
-    circuit.h(0);
-    circuit.cnot(0, 1);
-
+    let circuit = catalog::bell(BellState::PhiPlus);
     let result = circuit.run();
 
     let inv_sqrt2 = 1.0 / 2.0_f64.sqrt();
