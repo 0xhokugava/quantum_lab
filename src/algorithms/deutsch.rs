@@ -1,7 +1,7 @@
 use super::deutsch_helpers::{ANSWER, QUERY, classify_deutsch_result, query_probability};
+use crate::circuit::catalog::deutsch_circuit;
 use crate::circuit::core::Circuit;
 use crate::engine::utils::to_dirac;
-use crate::examples::catalog::deutsch_circuit;
 use ndarray::ArrayD;
 use num_complex::Complex64;
 // Deutsch algorithm demo.

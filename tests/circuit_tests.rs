@@ -1,10 +1,10 @@
 use ndarray::ArrayD;
 use num_complex::Complex64;
+use quantum_lab::circuit::catalog;
+use quantum_lab::circuit::catalog::BellState;
 use quantum_lab::circuit::core::Circuit;
 use quantum_lab::engine::constants::{q0, q1};
 use quantum_lab::engine::utils::assert_states_close;
-use quantum_lab::examples::catalog;
-use quantum_lab::examples::catalog::BellState;
 
 #[test]
 fn test_circuit_bell_state() {

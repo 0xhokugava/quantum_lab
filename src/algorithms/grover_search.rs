@@ -1,8 +1,7 @@
-use crate::circuit::core::Circuit;
+use crate::circuit::catalog::grover_circuit;
 use ndarray::ArrayD;
 use num_complex::Complex64;
 use std::f64::consts::PI;
-
 // Grover search algorithm demo.
 //
 // This module implements Grover search for a single marked basis state.
@@ -24,24 +23,14 @@ pub struct GroverResult {
     pub grover_steps: usize,
 }
 
-fn recommended_grover_steps(num_qubits: usize) -> usize {
+pub(crate) fn recommended_grover_steps(num_qubits: usize) -> usize {
     let search_space_size = 2.0_f64.powi(num_qubits as i32);
     ((PI / 4.0) * search_space_size.sqrt()).floor() as usize
 }
 
 pub fn run_grover(num_qubits: usize, target_index: usize) -> GroverResult {
-    assert!(num_qubits > 0);
-    assert!(target_index < (1usize << num_qubits));
-
+    let circuit = grover_circuit(num_qubits, target_index);
     let grover_steps = recommended_grover_steps(num_qubits);
-
-    let mut circuit = Circuit::new(num_qubits);
-    circuit.h_all();
-
-    for _ in 0..grover_steps {
-        circuit.phase_oracle(target_index);
-        circuit.diffusion();
-    }
 
     let final_state = circuit.run();
     let target_probability = final_state[target_index].norm_sqr();

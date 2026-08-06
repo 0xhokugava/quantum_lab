@@ -1,9 +1,9 @@
 use crate::algorithms::deutsch_helpers::{
     ANSWER, classify_deutsch_jozsa_result, query_register_zero_probability,
 };
+use crate::circuit::catalog::deutsch_jozsa_circuit;
 use crate::circuit::core::Circuit;
 use crate::engine::utils::to_dirac;
-use crate::examples::catalog::deutsch_jozsa_circuit;
 use ndarray::ArrayD;
 use num_complex::Complex64;
 use std::ops::RangeInclusive;

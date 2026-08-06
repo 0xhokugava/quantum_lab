@@ -1,7 +1,7 @@
+use quantum_lab::circuit::catalog;
+use quantum_lab::circuit::catalog::BellState;
 use quantum_lab::circuit::core::Circuit;
 use quantum_lab::circuit::operation::Operation;
-use quantum_lab::examples::catalog;
-use quantum_lab::examples::catalog::BellState;
 use quantum_lab::export::openqasm::{OpenQasmExportError, export_openqasm2};
 
 #[test]
