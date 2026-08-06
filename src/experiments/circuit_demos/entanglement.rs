@@ -1,4 +1,5 @@
-use crate::circuit::core::Circuit;
+use crate::circuit::catalog;
+use crate::circuit::catalog::BellState;
 use crate::engine::measurement::test_measure;
 use crate::engine::utils::{decode_measurement, to_dirac};
 
@@ -8,8 +9,7 @@ pub fn run() {
     let n_qubits = 2;
     let shots = 100_000;
 
-    let mut circuit = Circuit::new(n_qubits);
-    circuit.h(0).cnot(0, 1);
+    let circuit = catalog::bell(BellState::PhiPlus);
 
     let bell_state = circuit
         .run()

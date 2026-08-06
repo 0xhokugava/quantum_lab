@@ -1,9 +1,9 @@
 use super::deutsch_helpers::{ANSWER, QUERY, classify_deutsch_result, query_probability};
+use crate::circuit::catalog::deutsch_circuit;
 use crate::circuit::core::Circuit;
 use crate::engine::utils::to_dirac;
 use ndarray::ArrayD;
 use num_complex::Complex64;
-
 // Deutsch algorithm demo.
 //
 // This module implements the `n = 1` case of the Deutsch-Jozsa problem.
@@ -59,7 +59,7 @@ impl DeutschOracle {
         }
     }
 
-    fn apply(self, circuit: &mut Circuit) {
+    pub(crate) fn apply(self, circuit: &mut Circuit) {
         match self {
             DeutschOracle::ConstantZero => {}
             DeutschOracle::ConstantOne => {
@@ -78,17 +78,7 @@ impl DeutschOracle {
 }
 
 fn deutsch_state(oracle: DeutschOracle) -> ArrayD<Complex64> {
-    let mut circuit = Circuit::new(2);
-
-    circuit.x(ANSWER);
-    circuit.h(QUERY);
-    circuit.h(ANSWER);
-
-    oracle.apply(&mut circuit);
-
-    circuit.h(QUERY);
-
-    circuit.run()
+    deutsch_circuit(oracle).run()
 }
 
 pub fn run_deutsch(oracle: DeutschOracle) -> DeutschResult {

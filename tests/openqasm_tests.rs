@@ -1,3 +1,5 @@
+use quantum_lab::circuit::catalog;
+use quantum_lab::circuit::catalog::BellState;
 use quantum_lab::circuit::core::Circuit;
 use quantum_lab::circuit::operation::Operation;
 use quantum_lab::export::openqasm::{OpenQasmExportError, export_openqasm2};
@@ -39,9 +41,7 @@ fn exports_single_qubit_gates() {
 
 #[test]
 fn exports_bell_circuit() {
-    let mut circuit = Circuit::new(2);
-    circuit.h(0).cnot(0, 1);
-
+    let circuit = catalog::bell(BellState::PhiPlus);
     let qasm = export_openqasm2(&circuit).unwrap();
 
     assert_eq!(
