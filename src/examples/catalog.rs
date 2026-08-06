@@ -1,4 +1,5 @@
 use crate::algorithms::deutsch::DeutschOracle;
+use crate::algorithms::deutsch_jozsa::DeutschJozsaOracle;
 use crate::circuit::core::Circuit;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -39,6 +40,26 @@ pub fn deutsch_circuit(oracle: DeutschOracle) -> Circuit {
     oracle.apply(&mut circuit);
 
     circuit.h(QUERY);
+
+    circuit
+}
+
+pub fn deutsch_jozsa_circuit(num_query_qubits: usize, oracle: DeutschJozsaOracle) -> Circuit {
+    assert!(
+        num_query_qubits > 0,
+        "Deutsch-Jozsa requires at least one query qubit"
+    );
+    let total_qubits = num_query_qubits + 1;
+    let mut circuit = Circuit::new(total_qubits);
+    circuit.x(ANSWER);
+
+    crate::algorithms::deutsch_jozsa::apply_h_to_queries(&mut circuit, num_query_qubits);
+
+    circuit.h(ANSWER);
+
+    oracle.apply(&mut circuit, num_query_qubits);
+
+    crate::algorithms::deutsch_jozsa::apply_h_to_queries(&mut circuit, num_query_qubits);
 
     circuit
 }

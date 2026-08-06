@@ -3,10 +3,10 @@ use crate::algorithms::deutsch_helpers::{
 };
 use crate::circuit::core::Circuit;
 use crate::engine::utils::to_dirac;
+use crate::examples::catalog::deutsch_jozsa_circuit;
 use ndarray::ArrayD;
 use num_complex::Complex64;
 use std::ops::RangeInclusive;
-
 // Deutsch-Jozsa algorithm demo.
 //
 // This module implements the Deutsch-Jozsa algorithm for Boolean oracles that
@@ -40,7 +40,7 @@ pub struct DeutschJozsaResult {
 }
 
 impl DeutschJozsaOracle {
-    fn apply(self, circuit: &mut Circuit, num_query_qubits: usize) {
+    pub(crate) fn apply(self, circuit: &mut Circuit, num_query_qubits: usize) {
         match self {
             DeutschJozsaOracle::ConstantZero => {}
             DeutschJozsaOracle::ConstantOne => {
@@ -86,30 +86,14 @@ fn query_qubits(num_query_qubits: usize) -> RangeInclusive<usize> {
     1..=num_query_qubits
 }
 
-fn apply_h_to_queries(circuit: &mut Circuit, num_query_qubits: usize) {
+pub(crate) fn apply_h_to_queries(circuit: &mut Circuit, num_query_qubits: usize) {
     for query in query_qubits(num_query_qubits) {
         circuit.h(query);
     }
 }
 
 fn deutsch_jozsa_state(num_query_qubits: usize, oracle: DeutschJozsaOracle) -> ArrayD<Complex64> {
-    assert!(
-        num_query_qubits > 0,
-        "Deutsch-Jozsa requires at least one query qubit"
-    );
-    let total_qubits = num_query_qubits + 1;
-    let mut circuit = Circuit::new(total_qubits);
-    circuit.x(ANSWER);
-
-    apply_h_to_queries(&mut circuit, num_query_qubits);
-
-    circuit.h(ANSWER);
-
-    oracle.apply(&mut circuit, num_query_qubits);
-
-    apply_h_to_queries(&mut circuit, num_query_qubits);
-
-    circuit.run()
+    deutsch_jozsa_circuit(num_query_qubits, oracle).run()
 }
 
 pub fn run_deutsch_jozsa(
