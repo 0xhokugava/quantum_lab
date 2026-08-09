@@ -21,4 +21,5 @@ pub enum Operation {
     Cz { control: usize, target: usize },
     Mcx { controls: Vec<usize>, target: usize },
     Mcz { controls: Vec<usize>, target: usize },
+    Measure { qubit: usize, classical_bit: usize },
 }
