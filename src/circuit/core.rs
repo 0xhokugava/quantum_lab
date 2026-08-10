@@ -147,6 +147,11 @@ impl Circuit {
         self.n_qubits
     }
 
+    /// Returns the number of classical bits allocated for the circuit.
+    pub fn n_classical_bits(&self) -> usize {
+        self.n_classical_bits
+    }
+
     /// Returns the scheduled semantic operations.
     ///
     /// This is intended for inspection and export layers.
