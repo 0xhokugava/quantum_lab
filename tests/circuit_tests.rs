@@ -3,6 +3,7 @@ use num_complex::Complex64;
 use quantum_lab::circuit::catalog;
 use quantum_lab::circuit::catalog::BellState;
 use quantum_lab::circuit::core::Circuit;
+use quantum_lab::circuit::operation::{GateKind, Operation};
 use quantum_lab::engine::constants::{q0, q1};
 use quantum_lab::engine::utils::assert_states_close;
 
@@ -72,4 +73,108 @@ fn mcz_applies_phase_when_controls_are_one() {
     circuit.x(0).x(1).x(2).mcz(&[0, 1], 2);
     let state = circuit.run();
     assert_eq!(state[7], Complex64::new(-1.0, 0.0));
+}
+
+#[test]
+fn measure_adds_measurement_operation() {
+    let mut circuit = Circuit::with_classical_bits(2, 2);
+
+    circuit.measure(1, 0);
+
+    assert_eq!(
+        circuit.operations(),
+        &[Operation::Measure {
+            qubit: 1,
+            classical_bit: 0,
+        }]
+    );
+}
+
+#[test]
+fn measure_all_maps_qubits_to_matching_classical_bits() {
+    let mut circuit = Circuit::with_classical_bits(2, 2);
+
+    circuit.measure_all();
+
+    assert_eq!(
+        circuit.operations(),
+        &[
+            Operation::Measure {
+                qubit: 0,
+                classical_bit: 0,
+            },
+            Operation::Measure {
+                qubit: 1,
+                classical_bit: 1,
+            },
+        ]
+    );
+}
+
+#[test]
+#[should_panic(expected = "Qubit 2 is out of range")]
+fn measure_rejects_invalid_qubit() {
+    let mut circuit = Circuit::with_classical_bits(2, 2);
+
+    circuit.measure(2, 0);
+}
+
+#[test]
+#[should_panic(expected = "Classical bit 2 is out of range")]
+fn measure_rejects_invalid_classical_bit() {
+    let mut circuit = Circuit::with_classical_bits(2, 2);
+
+    circuit.measure(0, 2);
+}
+
+#[test]
+#[should_panic(expected = "measure_all requires at least as many classical bits as qubits")]
+fn measure_all_rejects_too_small_classical_register() {
+    let mut circuit = Circuit::with_classical_bits(2, 1);
+
+    circuit.measure_all();
+}
+
+#[test]
+fn tracks_classical_register_size() {
+    let circuit = Circuit::with_classical_bits(2, 3);
+
+    assert_eq!(circuit.n_qubits(), 2);
+    assert_eq!(circuit.n_classical_bits(), 3);
+}
+
+#[test]
+fn bell_measurement_maps_qubits_to_classical_bits() {
+    let mut circuit = Circuit::with_classical_bits(2, 2);
+    circuit.h(0).cnot(0, 1).measure_all();
+
+    assert_eq!(
+        circuit.operations(),
+        &[
+            Operation::SingleQubit {
+                gate: GateKind::H,
+                target: 0,
+            },
+            Operation::Cnot {
+                control: 0,
+                target: 1,
+            },
+            Operation::Measure {
+                qubit: 0,
+                classical_bit: 0,
+            },
+            Operation::Measure {
+                qubit: 1,
+                classical_bit: 1,
+            },
+        ]
+    );
+}
+
+#[test]
+#[should_panic(expected = "Measurement execution is not supported by Circuit::run yet")]
+fn run_rejects_measurement_operations() {
+    let mut circuit = Circuit::with_classical_bits(1, 1);
+    circuit.measure(0, 0);
+    circuit.run();
 }

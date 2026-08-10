@@ -43,6 +43,10 @@ pub fn export_openqasm2(circuit: &Circuit) -> Result<String, OpenQasmExportError
             Operation::Mcx { .. } | Operation::Mcz { .. } => {
                 return Err(OpenQasmExportError::UnsupportedOperation(operation.clone()));
             }
+
+            Operation::Measure { .. } => {
+                panic!("Measurement execution is not supported by Circuit::run yet");
+            }
         }
     }
 

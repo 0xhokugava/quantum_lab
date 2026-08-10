@@ -9,6 +9,7 @@ use num_complex::Complex64;
 
 pub struct Circuit {
     n_qubits: usize,
+    n_classical_bits: usize,
     operations: Vec<Operation>,
 }
 
@@ -32,6 +33,17 @@ impl Circuit {
         assert!(n_qubits > 0, "Circuit must contain at least one qubit");
         Self {
             n_qubits,
+            n_classical_bits: 0,
+            operations: Vec::new(),
+        }
+    }
+
+    pub fn with_classical_bits(n_qubits: usize, n_classical_bits: usize) -> Self {
+        assert!(n_qubits > 0, "Circuit must contain at least one qubit");
+
+        Self {
+            n_qubits,
+            n_classical_bits,
             operations: Vec::new(),
         }
     }
@@ -133,6 +145,11 @@ impl Circuit {
     /// Returns the number of qubits in the circuit.
     pub fn n_qubits(&self) -> usize {
         self.n_qubits
+    }
+
+    /// Returns the number of classical bits allocated for the circuit.
+    pub fn n_classical_bits(&self) -> usize {
+        self.n_classical_bits
     }
 
     /// Returns the scheduled semantic operations.
@@ -257,6 +274,52 @@ impl Circuit {
         self
     }
 
+    /// Schedules a measurement from a quantum bit into a classical bit.
+    ///
+    /// Both indices are validated against the circuit's quantum and classical
+    /// register sizes. The measurement is stored as a semantic operation and
+    /// is not executed immediately.
+    pub fn measure(&mut self, qubit: usize, classical_bit: usize) -> &mut Self {
+        assert!(
+            qubit < self.n_qubits,
+            "Qubit {} is out of range for {}-qubit circuit",
+            qubit,
+            self.n_qubits
+        );
+
+        assert!(
+            classical_bit < self.n_classical_bits,
+            "Classical bit {} is out of range for {}-bit classical register",
+            classical_bit,
+            self.n_classical_bits
+        );
+
+        self.operations.push(Operation::Measure {
+            qubit,
+            classical_bit,
+        });
+
+        self
+    }
+
+    /// Schedules measurement of every qubit into the classical bit
+    /// with the same index.
+    ///
+    /// Requires the classical register to contain at least as many bits
+    /// as the quantum register.
+    pub fn measure_all(&mut self) -> &mut Self {
+        assert!(
+            self.n_classical_bits >= self.n_qubits,
+            "measure_all requires at least as many classical bits as qubits"
+        );
+
+        for qubit in 0..self.n_qubits {
+            self.measure(qubit, qubit);
+        }
+
+        self
+    }
+
     /// Executes all scheduled operations on the initial `|0...0>` state.
     ///
     /// The circuit stores semantic operations. During execution each operation
@@ -294,6 +357,10 @@ impl Circuit {
                     apply_controlled_single_qubit_gate_inplace(
                         &mut state, &matrix, controls, *target,
                     );
+                }
+
+                Operation::Measure { .. } => {
+                    panic!("Measurement execution is not supported by Circuit::run yet");
                 }
             }
         }
