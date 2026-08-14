@@ -16,7 +16,7 @@ command-line arguments
 Example:
 
 ```bash
-qlab run --qubits 2 --gate h:0 --gate cnot:0,1
+eigenon run --qubits 2 --gate h:0 --gate cnot:0,1
 ```
 
 ## Circuit API
@@ -54,7 +54,7 @@ The simulator provides helpers for:
 
 ## Qubit Ordering
 
-Quantum Lab uses little-endian qubit indexing:
+Eigenon uses little-endian qubit indexing:
 
 ```text
 q0 = least significant bit
@@ -102,7 +102,7 @@ O(2^k)
 
 ## Dense Baseline
 
-Quantum Lab also keeps a dense full-operator implementation for correctness verification. The dense path is not intended for scalable execution. It is used as an independent baseline for comparing matrix-free results.
+Eigenon also keeps a dense full-operator implementation for correctness verification. The dense path is not intended for scalable execution. It is used as an independent baseline for comparing matrix-free results.
 
 ## Supported Operations
 

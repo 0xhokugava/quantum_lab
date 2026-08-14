@@ -16,7 +16,7 @@
 * [x] Grover search
 * [x] Qiskit validation for Deutsch–Jozsa
 * [x] Criterion benchmarks
-* [x] `qlab` command-line interface
+* [x] `eigenon` command-line interface
 * [x] Custom circuit execution through CLI
 * [x] MCX and MCZ gates through Circuit API
 * [x] MCX and MCZ gate syntax through CLI

@@ -1,6 +1,6 @@
+use eigenon::algorithms::grover_search::run_grover;
 use ndarray::ArrayD;
 use num_complex::Complex64;
-use quantum_lab::algorithms::grover_search::run_grover;
 #[test]
 fn run_grover_2_qubits() {
     let grover = run_grover(2, 2);

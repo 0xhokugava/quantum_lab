@@ -1,5 +1,5 @@
+use eigenon::circuit::catalog::{BellState, bell};
 use num_complex::Complex64;
-use quantum_lab::circuit::catalog::{BellState, bell};
 
 fn assert_amplitude(actual: Complex64, expected: Complex64) {
     const EPSILON: f64 = 1e-10;

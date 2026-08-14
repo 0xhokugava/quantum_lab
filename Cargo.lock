@@ -282,6 +282,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
 
 [[package]]
+name = "eigenon"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "criterion",
+ "ndarray",
+ "num-complex",
+ "rand",
+]
+
+[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -564,17 +575,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "quantum_lab"
-version = "0.1.0"
-dependencies = [
- "clap",
- "criterion",
- "ndarray",
- "num-complex",
- "rand",
 ]
 
 [[package]]

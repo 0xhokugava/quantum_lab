@@ -1,14 +1,14 @@
-use ndarray::linalg::Dot;
-use ndarray::{Array1, Array2, ArrayD};
-use num_complex::Complex64;
-use quantum_lab::engine::constants::{
+use eigenon::engine::constants::{
     gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
 };
-use quantum_lab::engine::ops::{
+use eigenon::engine::ops::{
     apply_cnot_inplace, apply_controlled_single_qubit_gate_inplace, apply_gate_inplace,
     apply_k_qubit_gate_inplace, apply_mcx_inplace, apply_mcz_inplace, tensor_product,
 };
-use quantum_lab::engine::utils::{assert_states_close, build_full_operator, q0_n, to_c64};
+use eigenon::engine::utils::{assert_states_close, build_full_operator, q0_n, to_c64};
+use ndarray::linalg::Dot;
+use ndarray::{Array1, Array2, ArrayD};
+use num_complex::Complex64;
 
 #[test]
 fn test_tensor_product() {

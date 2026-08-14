@@ -30,7 +30,7 @@ Validated scenario:
 * Grover steps: `2`
 * expected target probability: `0.9453125`
 
-Quantum Lab result:
+Eigenon result:
 
 ```text
 Target state: |101> index=5
@@ -68,7 +68,7 @@ python3 validation/qiskit/grover.py
 
 ## OpenQASM 2.0 export validation
 
-Quantum Lab can export a circuit to OpenQASM 2.0 and validate the exported file with Qiskit.
+Eigenon can export a circuit to OpenQASM 2.0 and validate the exported file with Qiskit.
 
 Generate a Bell circuit as OpenQASM:
 

@@ -1,14 +1,14 @@
 use clap::Parser;
-use quantum_lab::circuit::core::Circuit;
-use quantum_lab::cli::{Cli, Commands, DemoCommand, VerifyCommand};
-use quantum_lab::engine::utils::to_dirac;
-use quantum_lab::export::openqasm::export_openqasm2;
-use quantum_lab::{algorithms, experiments};
+use eigenon::circuit::core::Circuit;
+use eigenon::cli::{Cli, Commands, DemoCommand, VerifyCommand};
+use eigenon::engine::utils::to_dirac;
+use eigenon::export::openqasm::export_openqasm2;
+use eigenon::{algorithms, experiments};
 
 fn main() -> Result<(), String> {
     let cli = Cli::parse();
     if !matches!(cli.command, Commands::ExportOpenqasm { .. }) {
-        println!("\n🐈  Quantum Lab 🐈‍⬛\n");
+        println!("\n🐈  Eigenon 🐈‍⬛\n");
     }
     match cli.command {
         Commands::Run { qubits, gates } => {

@@ -1,8 +1,8 @@
-use ndarray::{Array2, array};
-use num_complex::Complex64;
-use quantum_lab::engine::constants::{
+use eigenon::engine::constants::{
     gate_cnot, gate_h, gate_s, gate_t, gate_x, gate_y, gate_z, identity, q0, q1,
 };
+use ndarray::{Array2, array};
+use num_complex::Complex64;
 
 fn to_c64(re: f64) -> Complex64 {
     Complex64::new(re, 0.0)
