@@ -1,4 +1,4 @@
-use quantum_lab::algorithms::deutsch_jozsa::{DeutschJozsaOracle, run_deutsch_jozsa};
+use eigenon::algorithms::deutsch_jozsa::{DeutschJozsaOracle, run_deutsch_jozsa};
 
 const EPSILON: f64 = 1e-9;
 

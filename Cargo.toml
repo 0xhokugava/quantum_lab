@@ -1,11 +1,11 @@
 [package]
-name = "quantum_lab"
+name = "eigenon"
 version = "0.1.0"
 edition = "2024"
 license = "GPL-3.0-or-later"
 
 [[bin]]
-name = "qlab"
+name = "eigenon"
 path = "src/main.rs"
 
 [dependencies]

@@ -1,8 +1,8 @@
-use quantum_lab::circuit::catalog;
-use quantum_lab::circuit::catalog::BellState;
-use quantum_lab::circuit::core::Circuit;
-use quantum_lab::circuit::operation::Operation;
-use quantum_lab::export::openqasm::{OpenQasmExportError, export_openqasm2};
+use eigenon::circuit::catalog;
+use eigenon::circuit::catalog::BellState;
+use eigenon::circuit::core::Circuit;
+use eigenon::circuit::operation::Operation;
+use eigenon::export::openqasm::{OpenQasmExportError, export_openqasm2};
 
 #[test]
 fn exports_empty_circuit() {

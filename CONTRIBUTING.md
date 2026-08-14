@@ -1,6 +1,6 @@
 # Contributing
 
-Quantum Lab is a small Rust-based quantum circuit simulation and validation toolkit.
+Eigenon is a quantum circuit simulation and validation toolkit.
 
 Contributions are welcome, especially in the areas of:
 
@@ -14,8 +14,8 @@ Contributions are welcome, especially in the areas of:
 ## Development setup
 
 ```bash
-git clone https://github.com/0xhokugava/quantum_lab.git
-cd quantum_lab
+git clone https://github.com/0xhokugava/eigenon.git
+cd eigenon
 cargo test
 cargo fmt
 ```

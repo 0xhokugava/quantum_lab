@@ -1,7 +1,7 @@
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
-use quantum_lab::engine::constants::{gate_cnot, identity};
-use quantum_lab::engine::ops::{apply_cnot_inplace, tensor_product};
-use quantum_lab::engine::utils::q0_n;
+use eigenon::engine::constants::{gate_cnot, identity};
+use eigenon::engine::ops::{apply_cnot_inplace, tensor_product};
+use eigenon::engine::utils::q0_n;
 use std::hint::black_box;
 
 fn bench_cnot_gate(c: &mut Criterion) {

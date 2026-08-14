@@ -1,4 +1,4 @@
-use quantum_lab::algorithms::deutsch::{DeutschOracle, run_deutsch};
+use eigenon::algorithms::deutsch::{DeutschOracle, run_deutsch};
 
 const EPSILON: f64 = 1e-9;
 

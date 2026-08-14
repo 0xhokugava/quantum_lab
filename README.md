@@ -1,4 +1,4 @@
-# Quantum Lab
+# Eigenon
 
 Modular quantum state-vector simulator and circuit execution toolkit focuses on matrix-free state-vector execution, circuit correctness, explicit qubit-ordering conventions and a small understandable API for building and running quantum circuits.
 
@@ -19,7 +19,7 @@ Modular quantum state-vector simulator and circuit execution toolkit focuses on 
 
 ## Command-line interface
 
-Install `qlab` binary from the repository root:
+Install `eigenon` binary from the repository root:
 
 ```bash
 cargo install --path .
@@ -28,13 +28,13 @@ cargo install --path .
 Run a custom circuit:
 
 ```bash
-qlab run --qubits 2 --gate h:0 --gate cnot:0,1
+eigenon run --qubits 2 --gate h:0 --gate cnot:0,1
 ```
 
 Output:
 
 ```text
-🐈 Quantum Lab 🐈‍⬛
+🐈 Eigenon 🐈‍⬛
 
 Qubits: 2, Gates: [H(0), Cnot { control: 0, target: 1 }]
 State: (0.707 + 0.000i)|00> + (0.707 + 0.000i)|11>
@@ -65,19 +65,19 @@ mcz:controls:target
 Show available algorithm demos:
 
 ```bash
-qlab demo --help
+eigenon demo --help
 ```
 
 Show available verification commands:
 
 ```bash
-qlab verify --help
+eigenon verify --help
 ```
 
 During development, run the current source without reinstalling the binary:
 
 ```bash
-cargo run --bin qlab -- run --qubits 2 --gate h:0 --gate cnot:0,1
+cargo run --bin eigenon -- run --qubits 2 --gate h:0 --gate cnot:0,1
 ```
 
 To update an already installed local binary:
@@ -133,4 +133,4 @@ cargo fmt
 
 ## License
 
-Quantum Lab is licensed under the GNU General Public License v3.0 or later.
+Eigenon is licensed under the GNU General Public License v3.0 or later.
