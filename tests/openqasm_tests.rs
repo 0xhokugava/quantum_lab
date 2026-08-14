@@ -100,3 +100,29 @@ fn rejects_mcz_for_now() {
         ))
     ));
 }
+
+#[test]
+fn exports_classical_register_and_measurements() {
+    let mut circuit = Circuit::with_classical_bits(2, 2);
+
+    circuit.h(0).cnot(0, 1).measure_all();
+
+    let qasm = export_openqasm2(&circuit).unwrap();
+
+    assert!(qasm.contains("qreg q[2];"));
+    assert!(qasm.contains("creg c[2];"));
+    assert!(qasm.contains("measure q[0] -> c[0];"));
+    assert!(qasm.contains("measure q[1] -> c[1];"));
+}
+
+#[test]
+fn does_not_export_classical_register_when_unused() {
+    let mut circuit = Circuit::new(2);
+
+    circuit.h(0).cnot(0, 1);
+
+    let qasm = export_openqasm2(&circuit).unwrap();
+
+    assert!(!qasm.contains("creg"));
+    assert!(!qasm.contains("measure"));
+}

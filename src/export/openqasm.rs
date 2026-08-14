@@ -24,7 +24,13 @@ pub fn export_openqasm2(circuit: &Circuit) -> Result<String, OpenQasmExportError
 
     output.push_str("OPENQASM 2.0;\n");
     output.push_str("include \"qelib1.inc\";\n\n");
-    output.push_str(&format!("qreg q[{}];\n\n", circuit.n_qubits()));
+    output.push_str(&format!("qreg q[{}];\n", circuit.n_qubits()));
+
+    if circuit.n_classical_bits() > 0 {
+        output.push_str(&format!("creg c[{}];\n", circuit.n_classical_bits()));
+    }
+
+    output.push('\n');
 
     for operation in circuit.operations() {
         match operation {
@@ -44,8 +50,11 @@ pub fn export_openqasm2(circuit: &Circuit) -> Result<String, OpenQasmExportError
                 return Err(OpenQasmExportError::UnsupportedOperation(operation.clone()));
             }
 
-            Operation::Measure { .. } => {
-                panic!("Measurement execution is not supported by Circuit::run yet");
+            Operation::Measure {
+                qubit,
+                classical_bit,
+            } => {
+                output.push_str(&format!("measure q[{}] -> c[{}];\n", qubit, classical_bit));
             }
         }
     }
